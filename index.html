@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#185FA5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Trainings-Tracker">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="data:application/manifest+json,{&quot;name&quot;:&quot;Trainings-Tracker&quot;,&quot;short_name&quot;:&quot;Training&quot;,&quot;start_url&quot;:&quot;https://schnetti74.github.io/training/&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%23f0f4f8&quot;,&quot;theme_color&quot;:&quot;%23185FA5&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23185FA5' width='192' height='192' rx='24'/%3E%3Ctext x='96' y='130' font-size='120' text-anchor='middle' fill='white'%3E%F0%9F%92%AA%3C/text%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+<title>Trainings-Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#222;}
+.container{max-width:520px;margin:0 auto;padding:1rem;}
+h1{font-size:22px;color:#1f4e78;margin-bottom:1.2rem;}
+
+/* TABS */
+.tabs{display:flex;background:#fff;border-radius:10px 10px 0 0;border-bottom:2px solid #d0dce8;margin-bottom:1rem;overflow-x:auto;}
+.tab-btn{flex:1;min-width:52px;padding:10px 3px;background:none;border:none;border-bottom:3px solid transparent;color:#999;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.2px;white-space:nowrap;}
+.tab-btn.active{color:#185FA5;border-bottom-color:#185FA5;background:#f0f7ff;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* CARDS */
+.card{background:#fff;border-radius:12px;padding:1.1rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.card-title{font-size:13px;font-weight:700;color:#1f4e78;margin-bottom:0.8rem;text-transform:uppercase;letter-spacing:0.4px;}
+
+/* FORMS */
+label{display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px;}
+input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid #dde4ed;border-radius:8px;font-size:15px;background:#fff;color:#222;font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,0.1);}
+.form-group{margin-bottom:0.9rem;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+textarea{resize:vertical;min-height:65px;font-size:14px;}
+
+/* BUTTONS */
+.btn{padding:11px;border:1.5px solid #dde4ed;background:#fff;border-radius:8px;font-size:14px;font-weight:600;color:#333;cursor:pointer;width:100%;transition:all 0.15s;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5;}
+.btn-primary:hover{background:#1468b3;}
+.btn-sm{padding:6px 10px;font-size:12px;width:auto;border-radius:6px;}
+.btn-danger{color:#c0392b;border-color:#e8b4b0;}
+.btn-danger:hover{background:#fdf0ef;}
+.btn-outline{background:transparent;color:#185FA5;border-color:#185FA5;}
+.btn-ghost{background:none;border:none;cursor:pointer;padding:4px 8px;font-size:18px;line-height:1;color:#888;}
+.btn-ghost:hover{color:#333;}
+
+/* PHASE BADGES */
+.phase-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;}
+.phase-hypertrophie{background:#d5e8f0;color:#1f4e78;}
+.phase-maximalkraft{background:#ffe0cc;color:#7d3000;}
+.phase-kraftausdauer{background:#d5f0d8;color:#1a5c2a;}
+.phase-deload{background:#ede7f6;color:#4a148c;}
+.phase-card.deload{background:#f5f0ff;border-color:#b39ddb;}
+
+/* EXERCISE LIST in plan cards */
+.day-card{background:#f7fafd;border:1.5px solid #d0dce8;border-radius:10px;padding:0.9rem;margin-bottom:0.8rem;}
+.day-card.active-session{border-color:#185FA5;background:#f0f7ff;}
+.day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;}
+.day-label{font-weight:700;font-size:14px;color:#1f4e78;}
+.day-focus{font-size:12px;color:#666;margin-bottom:0.5rem;font-style:italic;}
+.ex-list{list-style:none;}
+.ex-list li{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e8edf3;font-size:13px;}
+.ex-list li:last-child{border-bottom:none;}
+.ex-name{flex:1;color:#333;}
+.ex-sub{font-size:11px;color:#aaa;display:block;}
+.ex-badge{font-size:11px;color:#888;padding-left:8px;white-space:nowrap;}
+
+/* QUICK SELECT */
+.quickselect-wrap{margin-bottom:0.9rem;}
+.qs-label{font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
+.qs-btns{display:flex;flex-wrap:wrap;gap:7px;}
+.qs-btn{padding:7px 13px;border:1.5px solid #b3d0ea;background:#eaf4fb;border-radius:20px;font-size:13px;font-weight:500;color:#1a5080;cursor:pointer;transition:all 0.15s;white-space:nowrap;text-align:left;}
+.qs-btn:active{transform:scale(0.95);}
+.qs-btn.selected{background:#185FA5;color:#fff;border-color:#185FA5;}
+.qs-btn-inner{display:flex;flex-direction:column;}
+.qs-btn-name{font-size:13px;font-weight:600;}
+.qs-btn-last{font-size:10px;opacity:0.75;margin-top:1px;}
+
+/* ENTRY ITEMS */
+.entry-item{background:#f7fafd;border-left:4px solid #185FA5;border-radius:8px;padding:0.9rem;margin-bottom:10px;position:relative;}
+.entry-item.is-pr{border-left-color:#f39c12;}
+.entry-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.entry-title{font-size:15px;font-weight:600;color:#1f4e78;}
+.entry-date{font-size:12px;color:#999;}
+.entry-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.meta-item{display:flex;flex-direction:column;}
+.meta-label{color:#999;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
+.meta-value{font-weight:700;color:#222;font-size:15px;}
+.delete-x{position:absolute;top:8px;right:8px;background:none;border:none;color:#c0392b;font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;opacity:0.5;}
+.delete-x:hover{opacity:1;}
+.pr-badge{display:inline-block;background:#f39c12;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;}
+
+/* PHASE CARDS */
+.phase-card{border-radius:10px;padding:1rem;margin-bottom:0.8rem;border:2px solid;}
+.phase-card.hypertrophie{background:#eaf5fb;border-color:#b3d4e8;}
+.phase-card.maximalkraft{background:#fff4ee;border-color:#f5b88a;}
+.phase-card.kraftausdauer{background:#edfbef;border-color:#90d9a0;}
+.phase-card h3{font-size:14px;font-weight:700;margin-bottom:6px;}
+.phase-card p{font-size:12px;color:#555;line-height:1.5;}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+.spec{background:rgba(255,255,255,0.7);border-radius:6px;padding:5px 8px;font-size:11px;}
+.spec strong{display:block;font-size:13px;color:#1f4e78;}
+
+/* EXERCISE LIBRARY */
+.ex-lib-item{background:#fff;border:1.5px solid #dde4ed;border-radius:10px;padding:0.9rem;margin-bottom:0.7rem;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.ex-lib-info{flex:1;min-width:0;}
+.ex-lib-name{font-size:14px;font-weight:700;color:#1f4e78;margin-bottom:2px;}
+.ex-lib-note{font-size:12px;color:#888;white-space:pre-wrap;margin-top:4px;line-height:1.4;}
+.ex-lib-actions{display:flex;gap:4px;flex-shrink:0;}
+.ex-lib-pr{font-size:11px;color:#f39c12;font-weight:700;margin-top:3px;}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.stat-box{background:#fff;border-radius:10px;padding:0.9rem;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.stat-val{font-size:26px;font-weight:700;color:#185FA5;}
+.stat-lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;}
+.prog-card{background:#fff;border-left:4px solid #27ae60;border-radius:10px;padding:0.9rem;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.prog-card.neg{border-left-color:#e74c3c;}
+.prog-title{font-weight:700;font-size:14px;margin-bottom:2px;color:#1f4e78;}
+.prog-pr{font-size:12px;color:#f39c12;font-weight:600;margin-bottom:6px;}
+.prog-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+.prog-item .pl{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:1px;}
+.prog-item .pv{font-size:16px;font-weight:700;color:#333;}
+.prog-item .pd{font-size:10px;color:#aaa;}
+.prog-change{font-weight:700;font-size:13px;color:#27ae60;padding-top:8px;border-top:1px solid #eee;}
+.prog-change.neg{color:#e74c3c;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;justify-content:center;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:16px 16px 0 0;padding:1.2rem;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:700;color:#1f4e78;margin-bottom:1rem;}
+.modal-actions{display:flex;gap:8px;margin-top:1rem;}
+
+/* MISC */
+.empty-state{text-align:center;padding:2.5rem 1rem;color:#aaa;}
+.empty-icon{font-size:40px;margin-bottom:0.8rem;opacity:0.5;}
+.hint{font-size:11px;color:#888;margin-top:3px;}
+.no-training{background:#f7f7f7;border-radius:10px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:13px;color:#999;text-align:center;border:1.5px dashed #ddd;}
+.current-phase-banner{background:linear-gradient(135deg,#185FA5 0%,#2e85d4 100%);color:#fff;border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:1rem;}
+.cpb-label{font-size:11px;opacity:0.8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+.cpb-name{font-size:18px;font-weight:700;margin-bottom:2px;}
+.cpb-info{font-size:12px;opacity:0.85;}
+.section-label{font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin:1rem 0 0.5rem;}
+.pr-toast{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%) translateY(-80px);background:#f39c12;color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;font-weight:700;z-index:200;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 4px 16px rgba(0,0,0,0.18);}
+.pr-toast.show{transform:translateX(-50%) translateY(0);}
+/* TIMER POPUP */
+.timer-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,0.92);z-index:300;justify-content:center;align-items:center;}
+.timer-overlay.open{display:flex;}
+.timer-popup{background:#1a2540;border-radius:20px;padding:1.5rem;width:calc(100% - 2rem);max-width:400px;color:#fff;position:relative;}
+.timer-popup h2{font-size:16px;font-weight:700;color:#7eb8e8;margin-bottom:1.2rem;text-align:center;}
+.timer-phase-label{text-align:center;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;height:20px;transition:color 0.3s;}
+.timer-circle-wrap{display:flex;justify-content:center;margin-bottom:1rem;}
+.timer-circle{position:relative;width:160px;height:160px;}
+.timer-circle svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.timer-circle-bg{fill:none;stroke:#2a3a5a;stroke-width:10;}
+.timer-circle-progress{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 0.95s linear,stroke 0.3s;}
+.timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.timer-seconds{font-size:52px;font-weight:800;line-height:1;color:#fff;}
+.timer-unit{font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.timer-rep-count{text-align:center;margin-bottom:1rem;}
+.timer-rep-num{font-size:32px;font-weight:700;color:#fff;}
+.timer-rep-lbl{font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.5px;}
+.timer-controls{display:flex;gap:10px;margin-bottom:1rem;}
+.timer-btn{flex:1;padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;}
+.timer-btn:active{transform:scale(0.96);}
+.timer-btn-start{background:#27ae60;color:#fff;}
+.timer-btn-stop{background:#e74c3c;color:#fff;}
+.timer-btn-pause{background:#f39c12;color:#fff;}
+.timer-btn-reset{background:#2a3a5a;color:#7eb8e8;}
+.timer-settings{background:#0f1929;border-radius:14px;padding:1rem;margin-bottom:1rem;}
+.timer-settings h3{font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.8rem;}
+.timer-phase-rows{display:flex;flex-direction:column;gap:8px;}
+.timer-phase-row{display:flex;align-items:center;gap:8px;}
+.timer-phase-row label{font-size:12px;color:#aac;width:80px;flex-shrink:0;}
+.timer-phase-row input{background:#1a2540;border:1.5px solid #2a3a5a;border-radius:8px;color:#fff;padding:6px 10px;font-size:14px;width:60px;text-align:center;}
+.timer-phase-row input:focus{outline:none;border-color:#185FA5;}
+.timer-phase-row .timer-phase-color{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.timer-order-row{display:flex;align-items:center;gap:6px;margin-top:0.6rem;flex-wrap:wrap;}
+.timer-order-row label{font-size:12px;color:#aac;width:80px;flex-shrink:0;}
+.timer-order-chip{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:2px solid transparent;color:#fff;}
+.timer-order-chip.sel{border-color:#fff;}
+.timer-close-btn{position:absolute;top:1rem;right:1rem;background:none;border:none;color:#7eb8e8;font-size:22px;cursor:pointer;line-height:1;}
+.timer-finish-msg{text-align:center;padding:1rem 0;font-size:16px;font-weight:700;color:#27ae60;display:none;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="ff-hint" style="display:none;background:#f0f7ff;border:1.5px solid #b3d0ea;border-radius:10px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:13px;color:#185FA5;">
+    📱 <strong>Tipp:</strong> Menü (☰) → „Zum Startbildschirm hinzufügen" für schnellen Zugriff
+    <button onclick="document.getElementById('ff-hint').style.display='none';localStorage.setItem('ff-hint-dismissed','1')" style="float:right;background:none;border:none;color:#185FA5;font-size:16px;cursor:pointer;line-height:1;">✕</button>
+  </div>
+  <h1>💪 Trainings-Tracker</h1>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('log',this)">Eintrag</button>
+    <button class="tab-btn" onclick="switchTab('plan',this)">Plan</button>
+    <button class="tab-btn" onclick="switchTab('exercises',this)">Übungen</button>
+    <button class="tab-btn" onclick="switchTab('phase',this)">Phase</button>
+    <button class="tab-btn" onclick="switchTab('history',this)">Verlauf</button>
+    <button class="tab-btn" onclick="switchTab('stats',this)">Erfolge</button>
+  </div>
+
+  <!-- ===== EINTRAG ===== -->
+  <div id="log" class="tab-content active">
+    <div class="card">
+      <div class="card-title">Welche Einheit heute?</div>
+      <div id="session-selector"></div>
+    </div>
+    <div id="today-plan-preview"></div>
+    <div class="card">
+      <div class="card-title">Neuer Eintrag</div>
+      <form onsubmit="addEntry(event)">
+        <div class="form-group">
+          <label>Datum</label>
+          <input type="date" id="date" required>
+        </div>
+        <div id="quickselect-area"></div>
+        <div id="device-note-display"></div>
+        <input type="hidden" id="exercise">
+        <!-- Timer launch button -->
+        <div style="margin-bottom:0.9rem;">
+          <button type="button" class="btn" onclick="openTimer()" style="background:#1a2540;color:#7eb8e8;border-color:#2a3a5a;font-size:13px;">
+            ⏱️ Satz-Timer starten
+          </button>
+        </div>
+        <div class="row2">
+          <div class="form-group">
+            <label>Gewicht (kg)</label>
+            <input type="number" id="weight" step="0.5" placeholder="z.B. 50" required>
+          </div>
+          <div class="form-group">
+            <label>Wdh.</label>
+            <input type="number" id="reps" placeholder="z.B. 10" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Sätze</label>
+          <input type="number" id="sets" value="3" required>
+        </div>
+        <button type="submit" class="btn btn-primary">✓ Speichern</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== PLAN ===== -->
+  <div id="plan" class="tab-content">
+    <div id="phase-banner-plan"></div>
+    <div id="weekplan-cards"></div>
+    <button class="btn btn-outline" onclick="openEditPlan()" style="margin-top:0.5rem">✏️ Wochenplan anpassen</button>
+  </div>
+
+  <!-- ===== ÜBUNGEN ===== -->
+  <div id="exercises" class="tab-content">
+    <div class="card">
+      <div class="card-title">Neue Übung hinzufügen</div>
+      <div class="form-group">
+        <label>Name der Übung</label>
+        <input type="text" id="new-ex-name" placeholder="z.B. Beinpresse">
+      </div>
+      <div class="form-group">
+        <label>Geräteeinstellungen / Notizen</label>
+        <textarea id="new-ex-note" placeholder="z.B. Sitz auf 4, Rückenlehne auf 2, Fußplatte Mitte, Griffweite eng"></textarea>
+        <p class="hint">Freitext – alles was Sie sich merken möchten</p>
+      </div>
+      <button class="btn btn-primary" onclick="addExercise()">+ Übung hinzufügen</button>
+    </div>
+    <div class="section-label">Alle Übungen</div>
+    <div id="exercise-library"></div>
+  </div>
+
+  <!-- ===== PHASE ===== -->
+  <div id="phase" class="tab-content">
+    <div class="card">
+      <div class="card-title">Aktuelle Trainingsphase</div>
+      <div id="current-phase-display"></div>
+      <div id="phase-stats-display" style="margin-top:0.8rem;"></div>
+      <div style="margin-top:1rem">
+        <label>Phase wechseln</label>
+        <select id="phase-select" onchange="setPhase(this.value)">
+          <option value="hypertrophie">Hypertrophie (Muskelaufbau)</option>
+          <option value="maximalkraft">Maximalkraft</option>
+          <option value="kraftausdauer">Kraftausdauer</option>
+          <option value="deload">Deload-Woche</option>
+        </select>
+        <p class="hint">Empfehlung: 4–8 Wochen pro Phase · Deload nach jedem Zyklus</p>
+      </div>
+    </div>
+    <div id="phase-info-cards"></div>
+  </div>
+
+  <!-- ===== VERLAUF ===== -->
+  <div id="history" class="tab-content">
+    <!-- Chart controls -->
+    <div class="card" style="margin-bottom:0.8rem;">
+      <div style="display:flex;gap:6px;margin-bottom:0.8rem;">
+        <button id="chart-tab-weight" class="btn btn-sm btn-primary" onclick="setChartMode('weight')">Gewicht (kg)</button>
+        <button id="chart-tab-volume" class="btn btn-sm" onclick="setChartMode('volume')">Volumen</button>
+      </div>
+      <div class="form-group" style="margin-bottom:0.6rem;">
+        <label>Übung auswählen</label>
+        <select id="chart-exercise-select" onchange="renderChart()">
+          <option value="">Alle Übungen (Übersicht)</option>
+        </select>
+      </div>
+      <canvas id="main-chart" style="width:100%;height:220px;display:block;"></canvas>
+      <div id="chart-legend" style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:6px;"></div>
+      <div id="chart-empty" style="display:none;text-align:center;padding:2rem;color:#aaa;font-size:13px;">Noch keine Daten für diese Ansicht</div>
+    </div>
+    <!-- Phase legend -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0.8rem;">
+      <span style="font-size:11px;color:#666;align-self:center;">Phasen:</span>
+      <span class="phase-badge phase-hypertrophie">Hypertrophie</span>
+      <span class="phase-badge phase-maximalkraft">Maximalkraft</span>
+      <span class="phase-badge phase-kraftausdauer">Kraftausdauer</span>
+      <span class="phase-badge phase-deload">Deload</span>
+    </div>
+    <!-- Filter + list -->
+    <div class="form-group">
+      <label>Filter nach Übung</label>
+      <select id="filter-exercise" onchange="renderHistory()">
+        <option value="">Alle Übungen</option>
+      </select>
+    </div>
+    <div id="entries-list"></div>
+  </div>
+
+  <!-- ===== ERFOLGE ===== -->
+  <div id="stats" class="tab-content">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val" id="stat-days">0</div><div class="stat-lbl">Trainingstage</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-entries">0</div><div class="stat-lbl">Einträge gesamt</div></div>
+    </div>
+    <div id="progress-cards"></div>
+
+    <div class="section-label" style="margin-top:1.5rem;">Datensicherung</div>
+    <div class="card">
+      <div class="card-title">Export & Import</div>
+      <p style="font-size:13px;color:#555;margin-bottom:1rem;line-height:1.5;">Sichern Sie Ihre Trainingsdaten als JSON-Datei. Beim Import werden alle vorhandenen Daten ersetzt.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-primary" onclick="exportData()">⬇️ Daten exportieren (JSON)</button>
+        <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">⬆️ Daten importieren</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
+      <p class="hint" style="margin-top:0.8rem;">💡 Tipp: Exportieren Sie vor jedem App-Update als Backup.</p>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PLAN MODAL -->
+<div class="modal-overlay" id="modal-plan">
+  <div class="modal">
+    <div class="modal-title">✏️ Wochenplan anpassen</div>
+    <div id="modal-plan-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="savePlan()">Speichern</button>
+      <button class="btn" onclick="closeModal('modal-plan')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT EXERCISE MODAL -->
+<div class="modal-overlay" id="modal-ex">
+  <div class="modal">
+    <div class="modal-title">✏️ Übung bearbeiten</div>
+    <div class="form-group">
+      <label>Name der Übung</label>
+      <input type="text" id="edit-ex-name">
+    </div>
+    <div class="form-group">
+      <label>Geräteeinstellungen / Notizen</label>
+      <textarea id="edit-ex-note" rows="4"></textarea>
+      <p class="hint">Sitzposition, Rückenlehne, Griffweite, Gewichtspin etc.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveExerciseEdit()">Speichern</button>
+      <button class="btn" onclick="closeModal('modal-ex')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- PR TOAST -->
+<div class="pr-toast" id="pr-toast">🏆 Neuer Persönlicher Rekord!</div>
+
+<!-- EDIT PHASE MODAL -->
+<div class="modal-overlay" id="modal-phase-edit">
+  <div class="modal">
+    <div class="modal-title" id="modal-phase-edit-title">⚙️ Phase anpassen</div>
+    <div id="modal-phase-edit-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="savePhaseEdit()">Speichern</button>
+      <button class="btn" onclick="closeModal('modal-phase-edit')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIMER POPUP -->
+<div class="timer-overlay" id="timer-overlay">
+  <div class="timer-popup">
+    <button class="timer-close-btn" onclick="closeTimer()">✕</button>
+    <h2 id="timer-popup-title">⏱️ Satz-Timer</h2>
+
+    <!-- ===== SETTINGS PANEL ===== -->
+    <div class="timer-settings" id="timer-settings-panel">
+      <h3>Frequenz-Einstellungen</h3>
+      <div class="timer-phase-rows">
+        <div class="timer-phase-row">
+          <div class="timer-phase-color" style="background:#9b59b6;"></div>
+          <label>Vorbereitung</label>
+          <input type="number" id="t-prep" oninput="saveTimerSettings()" value="5" min="0" max="30">
+          <span style="color:#556;font-size:11px;">Sek</span>
+        </div>
+        <div class="timer-phase-row">
+          <div class="timer-phase-color" style="background:#3498db;"></div>
+          <label>Positiv</label>
+          <input type="number" id="t-positiv" oninput="saveTimerSettings()" value="2" min="1" max="10">
+          <span style="color:#556;font-size:11px;">Sek</span>
+        </div>
+        <div class="timer-phase-row">
+          <div class="timer-phase-color" style="background:#95a5a6;"></div>
+          <label>Oben halten</label>
+          <input type="number" id="t-oben" oninput="saveTimerSettings()" value="1" min="0" max="10">
+          <span style="color:#556;font-size:11px;">Sek</span>
+        </div>
+        <div class="timer-phase-row">
+          <div class="timer-phase-color" style="background:#e74c3c;"></div>
+          <label>Negativ</label>
+          <input type="number" id="t-negativ" oninput="saveTimerSettings()" value="2" min="1" max="10">
+          <span style="color:#556;font-size:11px;">Sek</span>
+        </div>
+        <div class="timer-phase-row">
+          <div class="timer-phase-color" style="background:#f39c12;"></div>
+          <label>Wdh.-Pause</label>
+          <input type="number" id="t-pause" oninput="saveTimerSettings()" value="1" min="0" max="10">
+          <span style="color:#556;font-size:11px;">Sek</span>
+        </div>
+        <div class="timer-phase-row" style="margin-top:4px;border-top:1px solid #1e2e4a;padding-top:8px;">
+          <div class="timer-phase-color" style="background:#27ae60;"></div>
+          <label>Satz-Pause</label>
+          <input type="number" id="t-rest" oninput="saveTimerSettings()" value="90" min="10" max="300">
+          <span style="color:#556;font-size:11px;">Sek</span>
+        </div>
+      </div>
+      <div class="timer-order-row" style="margin-top:1rem;">
+        <label>Reihenfolge</label>
+        <div id="phase-order-selector" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+      <p style="font-size:11px;color:#445;margin-top:6px;">Phasen antippen um Reihenfolge festzulegen. 0 Sek = wird übersprungen.</p>
+
+      <!-- VOICE TOGGLE -->
+      <div style="margin-top:1rem;padding-top:0.8rem;border-top:1px solid #1e2e4a;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;color:#aac;">🔊 Stimme</span>
+        <div style="display:flex;gap:8px;">
+          <button type="button" id="voice-btn-on"
+            onclick="setVoice(true)"
+            style="padding:6px 14px;border-radius:8px;border:2px solid #27ae60;background:#27ae60;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">
+            AN
+          </button>
+          <button type="button" id="voice-btn-off"
+            onclick="setVoice(false)"
+            style="padding:6px 14px;border-radius:8px;border:2px solid #2a3a5a;background:#2a3a5a;color:#7eb8e8;font-size:12px;font-weight:700;cursor:pointer;">
+            AUS
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== PREP COUNTDOWN ===== -->
+    <div id="timer-prep-display" style="display:none;">
+      <div class="timer-phase-label" style="color:#9b59b6;">Vorbereitung – Bereit machen!</div>
+      <div class="timer-circle-wrap">
+        <div class="timer-circle">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle class="timer-circle-bg" cx="80" cy="80" r="70"/>
+            <circle class="timer-circle-progress" id="prep-arc" cx="80" cy="80" r="70"
+              stroke-dasharray="439.82" stroke-dashoffset="0" stroke="#9b59b6"/>
+          </svg>
+          <div class="timer-center">
+            <div class="timer-seconds" id="prep-seconds">5</div>
+            <div class="timer-unit">Sekunden</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ACTIVE SET DISPLAY ===== -->
+    <div id="timer-display" style="display:none;">
+      <div class="timer-phase-label" id="timer-phase-label">–</div>
+      <div class="timer-circle-wrap">
+        <div class="timer-circle">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle class="timer-circle-bg" cx="80" cy="80" r="70"/>
+            <circle class="timer-circle-progress" id="timer-arc" cx="80" cy="80" r="70"
+              stroke-dasharray="439.82" stroke-dashoffset="0" stroke="#3498db"/>
+          </svg>
+          <div class="timer-center">
+            <div class="timer-seconds" id="timer-seconds">0</div>
+            <div class="timer-unit">Sekunden</div>
+          </div>
+        </div>
+      </div>
+      <!-- Permanent rep counter -->
+      <div style="background:#0f1929;border-radius:12px;padding:0.8rem;margin-bottom:0.8rem;text-align:center;">
+        <div style="font-size:48px;font-weight:800;color:#fff;line-height:1;" id="timer-rep-current">0</div>
+        <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">Wiederholungen</div>
+      </div>
+
+      <!-- Shake status -->
+      <div id="shake-status" style="text-align:center;font-size:11px;color:#445;margin-bottom:0.3rem;height:16px;"></div>
+    </div>
+
+    <!-- ===== SET FINISHED / REST TIMER ===== -->
+    <div id="timer-rest-display" style="display:none;">
+      <div style="text-align:center;margin-bottom:0.6rem;">
+        <div style="font-size:13px;font-weight:700;color:#27ae60;margin-bottom:4px;">✅ Satz beendet!</div>
+        <div style="font-size:22px;font-weight:700;color:#fff;" id="rest-reps-result">– Wiederholungen</div>
+      </div>
+      <div class="timer-phase-label" style="color:#f39c12;" id="rest-phase-label">Satz-Pause</div>
+      <div class="timer-circle-wrap">
+        <div class="timer-circle">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle class="timer-circle-bg" cx="80" cy="80" r="70"/>
+            <circle class="timer-circle-progress" id="rest-arc" cx="80" cy="80" r="70"
+              stroke-dasharray="439.82" stroke-dashoffset="0" stroke="#f39c12"/>
+          </svg>
+          <div class="timer-center">
+            <div class="timer-seconds" id="rest-seconds">90</div>
+            <div class="timer-unit">Pause</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#556;text-align:center;margin-bottom:0.5rem;">Wdh. ins Formular übernehmen?</div>
+      <button class="timer-btn" onclick="applyRepCount()" style="background:#185FA5;color:#fff;margin-bottom:0.5rem;font-size:13px;">↑ Wdh. übernehmen</button>
+    </div>
+
+    <!-- ===== CONTROLS ===== -->
+    <!-- Big stop button – shown during set -->
+    <div id="big-stop-wrap" style="display:none;margin-bottom:0.8rem;">
+      <button onclick="timerStopSet()"
+        style="width:100%;padding:20px;background:#e74c3c;color:#fff;border:none;border-radius:16px;
+               font-size:20px;font-weight:800;cursor:pointer;letter-spacing:0.5px;
+               box-shadow:0 4px 16px rgba(231,76,60,0.5);active:transform:scale(0.97);">
+        ⏹ SATZ BEENDEN
+      </button>
+      <div style="text-align:center;font-size:11px;color:#445;margin-top:6px;">oder Handy schütteln</div>
+    </div>
+    <div class="timer-controls" id="timer-controls">
+      <button class="timer-btn timer-btn-start" id="timer-btn-main" onclick="timerMainAction()">▶ Starten</button>
+
+      <button class="timer-btn timer-btn-reset" onclick="timerReset()">↺ Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DEFAULTS =====================
+const DEFAULT_PLAN = {
+  A:{label:"Einheit A",focus:"Unterkörper + Rücken",exercises:["Kniebeuge","Kreuzheben","Lat-Ziehen"]},
+  B:{label:"Einheit B",focus:"Oberkörper + Core",exercises:["Bankdrücken","Schulterdrücken","Trizeps-Drücken"]},
+  C:{label:"Einheit C",focus:"Kompletter Körper",exercises:["Rudern","Beinpresse","Brustfliegen"]}
+};
+
+const DEFAULT_EXERCISES = [
+  {name:"Kniebeuge",note:""},
+  {name:"Kreuzheben",note:""},
+  {name:"Lat-Ziehen",note:""},
+  {name:"Bankdrücken",note:""},
+  {name:"Schulterdrücken",note:""},
+  {name:"Trizeps-Drücken",note:""},
+  {name:"Rudern",note:""},
+  {name:"Beinpresse",note:""},
+  {name:"Brustfliegen",note:""},
+  {name:"Bizeps-Curls",note:""},
+  {name:"Beinstrecker",note:""},
+  {name:"Beinbeuger",note:""}
+];
+
+const PHASES = {
+  hypertrophie:{name:"Hypertrophie",subtitle:"Muskelaufbau",color:"hypertrophie",wdh:"8–12",saetze:"3–4",intensity:"60–75% 1RM",pause:"60–90 Sek",tempo:"2-1-2",ziel:"Muskelmasse aufbauen durch mittelhohe Wiederholungen und moderate Gewichte.",tipp:"Letzte 1–2 Wdh. sollten anstrengend sein (RPE 7–8). Gewicht erhöhen sobald alle Wdh. leicht fallen."},
+  maximalkraft:{name:"Maximalkraft",subtitle:"Kraft & Nervensystem",color:"maximalkraft",wdh:"3–5",saetze:"4–5",intensity:"85–90% 1RM",pause:"2–3 Min",tempo:"2-0-1",ziel:"Neuromuskuläre Koordination verbessern. Das Nervensystem lernt, mehr Muskelfasern gleichzeitig zu aktivieren.",tipp:"Sehr schwere Gewichte – Technik immer vor Gewicht! Aufwärmen sehr wichtig in dieser Phase."},
+  kraftausdauer:{name:"Kraftausdauer",subtitle:"Kapillarisierung & Ausdauer",color:"kraftausdauer",wdh:"15–20",saetze:"2–3",intensity:"50–65% 1RM",pause:"45–60 Sek",tempo:"2-1-2",ziel:"Bildung neuer Kapillaren verbessert Nährstoffversorgung und Regeneration.",tipp:"Kurze Pausen einhalten – das erzeugt den Ausdauerreiz. Gefühl des Brennens ist normal und gewünscht."},
+  deload:{name:"Deload-Woche",subtitle:"Aktive Erholung",color:"deload",wdh:"10",saetze:"2",intensity:"50% des letzten Gewichts",pause:"60 Sek",tempo:"2-1-2",ziel:"Gezielte Erholungswoche: Gelenke, Sehnen und Nervensystem regenerieren. Das Gewicht soll sich leicht anfühlen.",tipp:"Nur 2 Sätze pro Übung. Gewicht halbieren. Kein Ego – diese Woche ist Investition in die nächste Phase!"}
+};
+
+// ===================== STATE =====================
+let state = {
+  entries:[],
+  plan:JSON.parse(JSON.stringify(DEFAULT_PLAN)),
+  exerciseLibrary:JSON.parse(JSON.stringify(DEFAULT_EXERCISES)),
+  phase:"hypertrophie",
+  phaseStartDate:new Date().toISOString().split('T')[0],
+  activeSession:"A",
+  phaseParams:{},
+  timerSettings:{
+    prep:5, positiv:2, oben:1, negativ:2, pause:1, rest:90,
+    order:['positiv','oben','negativ','pause'],
+    voiceEnabled:true
+  }
+};
+
+let editingExIndex = null;
+
+// ===================== STORAGE =====================
+function loadData(){
+  try{
+    const s = localStorage.getItem('tt_v3');
+    if(s){
+      const d = JSON.parse(s);
+      state.entries = d.entries||[];
+      state.plan = d.plan||JSON.parse(JSON.stringify(DEFAULT_PLAN));
+      state.exerciseLibrary = d.exerciseLibrary||JSON.parse(JSON.stringify(DEFAULT_EXERCISES));
+      state.phase = d.phase||"hypertrophie";
+      state.phaseStartDate = d.phaseStartDate||new Date().toISOString().split('T')[0];
+      state.activeSession = d.activeSession||"A";
+      state.phaseParams = d.phaseParams||{};
+      if(d.timerSettings) state.timerSettings = d.timerSettings;
+    }
+  }catch(e){}
+  init();
+}
+
+function saveData(){
+  localStorage.setItem('tt_v3',JSON.stringify(state));
+}
+
+// ===================== INIT =====================
+function init(){
+  document.getElementById('date').value = new Date().toISOString().split('T')[0];
+  // Show Firefox install hint if not dismissed
+  if(!localStorage.getItem('ff-hint-dismissed')){
+    document.getElementById('ff-hint').style.display='block';
+  }
+  populateExerciseDropdowns();
+  renderSessionSelector();
+  renderTodayPreview();
+  renderWeekPlan();
+  renderExerciseLibrary();
+  renderPhaseTab();
+  renderHistory();
+  updateStats();
+  // Pre-fill sets from active phase
+  const _ph = getPhase(state.phase);
+  if(_ph && _ph.saetze){
+    document.getElementById('sets').value = parseInt(_ph.saetze.toString().split('–')[0]) || 3;
+  }
+}
+
+// ===================== TAB SWITCH =====================
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='history') setTimeout(renderChart, 50);
+}
+
+// ===================== EXERCISE LIBRARY =====================
+// Helper: get effective phase params (defaults merged with user overrides)
+function getPhase(key){
+  const base = PHASES[key||state.phase];
+  const overrides = state.phaseParams[key||state.phase]||{};
+  return {...base, ...overrides};
+}
+
+function getExerciseByName(name){
+  return state.exerciseLibrary.find(e=>e.name===name);
+}
+
+function getAllExerciseNames(){
+  return state.exerciseLibrary.map(e=>e.name);
+}
+
+function populateExerciseDropdowns(){
+  const names = getAllExerciseNames();
+  ['filter-exercise','chart-exercise-select'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const first = sel.options[0];
+    sel.innerHTML='';
+    sel.appendChild(first);
+    names.forEach(n=>{
+      const o = document.createElement('option');
+      o.value=n; o.textContent=n;
+      sel.appendChild(o);
+    });
+  });
+}
+
+function addExercise(){
+  const nameEl = document.getElementById('new-ex-name');
+  const noteEl = document.getElementById('new-ex-note');
+  const name = nameEl.value.trim();
+  if(!name) return;
+  if(state.exerciseLibrary.find(e=>e.name===name)){
+    alert('Diese Übung existiert bereits.');
+    return;
+  }
+  state.exerciseLibrary.push({name, note:noteEl.value.trim()});
+  nameEl.value=''; noteEl.value='';
+  saveData();
+  populateExerciseDropdowns();
+  renderExerciseLibrary();
+}
+
+function openEditExercise(idx){
+  editingExIndex = idx;
+  const ex = state.exerciseLibrary[idx];
+  document.getElementById('edit-ex-name').value = ex.name;
+  document.getElementById('edit-ex-note').value = ex.note||'';
+  document.getElementById('modal-ex').classList.add('open');
+}
+
+function saveExerciseEdit(){
+  if(editingExIndex===null) return;
+  const newName = document.getElementById('edit-ex-name').value.trim();
+  const newNote = document.getElementById('edit-ex-note').value.trim();
+  if(!newName) return;
+  const oldName = state.exerciseLibrary[editingExIndex].name;
+  // Update entries that reference old name
+  if(oldName !== newName){
+    state.entries.forEach(e=>{ if(e.exercise===oldName) e.exercise=newName; });
+    // Update plan references
+    Object.values(state.plan).forEach(day=>{
+      day.exercises = day.exercises.map(e=>e===oldName?newName:e);
+    });
+  }
+  state.exerciseLibrary[editingExIndex] = {name:newName, note:newNote};
+  saveData();
+  populateExerciseDropdowns();
+  renderExerciseLibrary();
+  renderTodayPreview();
+  renderWeekPlan();
+  closeModal('modal-ex');
+  editingExIndex=null;
+}
+
+function deleteExercise(idx){
+  const name = state.exerciseLibrary[idx].name;
+  if(!confirm(`Übung "${name}" wirklich löschen?`)) return;
+  state.exerciseLibrary.splice(idx,1);
+  saveData();
+  populateExerciseDropdowns();
+  renderExerciseLibrary();
+}
+
+function renderExerciseLibrary(){
+  const div = document.getElementById('exercise-library');
+  if(!state.exerciseLibrary.length){
+    div.innerHTML='<div class="empty-state"><div class="empty-icon">🏋️</div><p>Noch keine Übungen.</p></div>';
+    return;
+  }
+  div.innerHTML = state.exerciseLibrary.map((ex,idx)=>{
+    const pr = getPR(ex.name);
+    return `
+    <div class="ex-lib-item">
+      <div class="ex-lib-info">
+        <div class="ex-lib-name">${ex.name}</div>
+        ${pr ? `<div class="ex-lib-pr">🏆 Bestleistung: ${pr.weight} kg × ${pr.reps} Wdh.</div>` : ''}
+        ${ex.note ? `<div class="ex-lib-note">📋 ${ex.note}</div>` : '<div class="ex-lib-note" style="color:#ccc;font-size:11px;">Keine Gerätenotiz</div>'}
+      </div>
+      <div class="ex-lib-actions">
+        <button class="btn-ghost" onclick="openEditExercise(${idx})" title="Bearbeiten">✏️</button>
+        <button class="btn-ghost" onclick="deleteExercise(${idx})" title="Löschen" style="color:#c0392b;">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== PR LOGIC =====================
+function getPR(exerciseName){
+  const entries = state.entries.filter(e=>e.exercise===exerciseName);
+  if(!entries.length) return null;
+  return entries.reduce((best,e)=> e.weight > best.weight ? e : best, entries[0]);
+}
+
+function isNewPR(exerciseName, weight){
+  const pr = getPR(exerciseName);
+  return !pr || weight > pr.weight;
+}
+
+function showPRToast(){
+  const t = document.getElementById('pr-toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ===================== SESSION SELECTOR =====================
+function renderSessionSelector(){
+  const icons = {A:'🦵',B:'💪',C:'🏋️'};
+  const html = `<div style="display:flex;gap:8px;flex-wrap:wrap;">
+    ${Object.entries(state.plan).map(([key,s])=>{
+      const active = key===state.activeSession;
+      return `<button type="button" onclick="setActiveSession('${key}')"
+        style="flex:1;min-width:80px;padding:10px 6px;border-radius:10px;border:2px solid ${active?'#185FA5':'#d0dce8'};
+               background:${active?'#185FA5':'#f7fafd'};color:${active?'#fff':'#444'};
+               font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;">
+        <div style="font-size:18px;margin-bottom:2px;">${icons[key]||'🏋️'}</div>
+        <div>${s.label}</div>
+        <div style="font-size:10px;font-weight:400;opacity:0.85;margin-top:1px;">${s.focus}</div>
+      </button>`;
+    }).join('')}
+  </div>`;
+  document.getElementById('session-selector').innerHTML=html;
+}
+
+function setActiveSession(key){
+  state.activeSession=key;
+  saveData();
+  renderSessionSelector();
+  renderTodayPreview();
+  renderWeekPlan();
+}
+
+// ===================== TODAY PREVIEW =====================
+function renderTodayPreview(){
+  const sessionKey = state.activeSession||'A';
+  const dayData = state.plan[sessionKey];
+  const ph = getPhase(state.phase);
+  const isDeload = state.phase==='deload';
+  const container = document.getElementById('today-plan-preview');
+  if(!dayData){container.innerHTML='';renderQuickSelect([]);return;}
+  container.innerHTML=`
+    <div class="card" style="border-left:4px solid #185FA5;margin-bottom:0.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+        <span class="card-title" style="margin:0">${dayData.label} – ${dayData.focus}</span>
+        <span class="phase-badge phase-${ph.color}">${ph.name}</span>
+      </div>
+      <div style="font-size:12px;color:#666;margin-bottom:8px;">
+        <strong>${ph.wdh} Wdh</strong> · <strong>${ph.saetze} Sätze</strong> · Pause ${ph.pause} · Tempo ${ph.tempo}
+        ${isDeload?'<br><span style="color:#7b1fa2;font-weight:600;">⚡ Gewicht halbieren gegenüber letzter Kraftausdauer-Phase</span>':''}
+      </div>
+      <ul class="ex-list">
+        ${dayData.exercises.map(e=>{
+          const last = getLastEntry(e);
+          const ex = getExerciseByName(e);
+          const pr = getPR(e);
+          let lastText, lastColor;
+          if(isDeload && last){
+            const deloadWeight = Math.round((last.weight/2)*2)/2;
+            lastText=`Deload: ~${deloadWeight}kg × 10`;
+            lastColor='#7b1fa2';
+          } else {
+            lastText=last?`${last.weight}kg×${last.reps}`:'Neu';
+            lastColor=last?'#185FA5':'#ccc';
+          }
+          return `<li>
+            <span class="ex-name">
+              ${e}
+              ${pr?`<span class="pr-badge">PR: ${pr.weight}kg</span>`:''}
+              ${ex&&ex.note?`<span class="ex-sub">📋 ${ex.note}</span>`:''}
+            </span>
+            <span class="ex-badge" style="color:${lastColor}">Zuletzt: ${lastText}</span>
+          </li>`;
+        }).join('')}
+      </ul>
+    </div>`;
+  renderQuickSelect(dayData.exercises);
+}
+
+function getLastEntry(exerciseName){
+  const entries = state.entries.filter(e=>e.exercise===exerciseName);
+  if(!entries.length) return null;
+  return entries.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+}
+
+// ===================== QUICK SELECT =====================
+function renderQuickSelect(exercises){
+  const area = document.getElementById('quickselect-area');
+  if(!exercises||!exercises.length){area.innerHTML='';return;}
+  const isDeload = state.phase==='deload';
+  const currentVal = document.getElementById('exercise').value;
+  area.innerHTML=`
+    <div class="quickselect-wrap">
+      <div class="qs-label">Übung antippen zum Auswählen</div>
+      <div class="qs-btns">
+        ${exercises.map(e=>{
+          const last = getLastEntry(e);
+          const pr = getPR(e);
+          const isPRlast = pr&&last&&last.weight>=pr.weight;
+          let subText;
+          if(isDeload && last){
+            const dw = Math.round((last.weight/2)*2)/2;
+            subText=`Deload: ~${dw}kg × 10`;
+          } else {
+            subText=last?`Zuletzt: ${last.weight}kg × ${last.reps}`:'Neu';
+          }
+          return `<button type="button" class="qs-btn ${currentVal===e?'selected':''}" onclick="quickSelectExercise('${e.replace(/'/g,"\\'")}')">
+            <div class="qs-btn-inner">
+              <span class="qs-btn-name">${isPRlast&&!isDeload?'🏆 ':''}${e}</span>
+              <span class="qs-btn-last">${subText}</span>
+            </div>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function quickSelectExercise(name){
+  document.getElementById('exercise').value=name;
+  document.querySelectorAll('.qs-btn').forEach(b=>{
+    b.classList.toggle('selected', b.querySelector('.qs-btn-name').textContent.replace('🏆 ','').trim()===name);
+  });
+  showDeviceNote(name);
+  const last = getLastEntry(name);
+  const isDeload = state.phase==='deload';
+  if(isDeload && last){
+    document.getElementById('weight').value = Math.round((last.weight/2)*2)/2;
+    document.getElementById('reps').value = 10;
+    document.getElementById('sets').value = 2;
+  } else if(last){
+    document.getElementById('weight').value=last.weight;
+    document.getElementById('reps').value=last.reps;
+    document.getElementById('sets').value=last.sets||3;
+  }
+  document.getElementById('weight').focus();
+}
+
+function onExerciseSelectChange(){ /* no-op: dropdown removed */ }
+
+function showDeviceNote(name){
+  const ex = getExerciseByName(name);
+  const div = document.getElementById('device-note-display');
+  if(ex&&ex.note){
+    div.innerHTML=`<div style="background:#fffbea;border:1.5px solid #f0d070;border-radius:8px;padding:9px 12px;margin-bottom:0.9rem;font-size:13px;color:#7a6000;line-height:1.5;">
+      📋 <strong>Geräteeinstellung:</strong><br>${ex.note}
+    </div>`;
+  } else {
+    div.innerHTML='';
+  }
+}
+
+// ===================== WEEK PLAN =====================
+function renderWeekPlan(){
+  const ph = getPhase(state.phase);
+  const isDeload = state.phase==='deload';
+  document.getElementById('phase-banner-plan').innerHTML=`
+    <div class="current-phase-banner">
+      <div class="cpb-label">Aktive Phase</div>
+      <div class="cpb-name">${ph.name} – ${ph.subtitle}</div>
+      <div class="cpb-info">${ph.wdh} Wdh · ${ph.saetze} Sätze · Pause ${ph.pause} · Tempo ${ph.tempo}</div>
+    </div>`;
+  const icons={A:'🦵',B:'💪',C:'🏋️'};
+  let html='';
+  Object.entries(state.plan).forEach(([key,day])=>{
+    const isActive = key===state.activeSession;
+    html+=`<div class="day-card ${isActive?'active-session':''}">
+      <div class="day-header">
+        <span class="day-label">${icons[key]||'🏋️'} ${day.label}</span>
+        ${isActive?'<span style="font-size:11px;font-weight:700;color:#185FA5;">▶ AKTIV</span>':''}
+      </div>
+      <div class="day-focus">${day.focus}</div>
+      <ul class="ex-list">
+        ${day.exercises.map(e=>`
+          <li>
+            <span class="ex-name">${e}</span>
+            <span class="ex-badge">${ph.wdh} Wdh · ${ph.saetze} Sätze · ${ph.pause}</span>
+          </li>`).join('')}
+      </ul>
+    </div>`;
+  });
+  document.getElementById('weekplan-cards').innerHTML=html;
+}
+
+// ===================== EDIT PLAN MODAL =====================
+function openEditPlan(){
+  const keys=Object.keys(state.plan);
+  let html='';
+  keys.forEach((key,idx)=>{
+    const day=state.plan[key];
+    const allNames=getAllExerciseNames();
+    const checkedSet=new Set(day.exercises);
+    html+=`<div style="margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:${idx<keys.length-1?'1px solid #eee':'none'};">
+      <h3 style="margin-bottom:8px;color:#1f4e78;">Einheit ${key}</h3>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="label-${key}" value="${day.label}">
+      </div>
+      <div class="form-group">
+        <label>Schwerpunkt</label>
+        <input type="text" id="focus-${key}" value="${day.focus}">
+      </div>
+      <div class="form-group">
+        <label>Übungen (eine pro Zeile)</label>
+        <textarea id="exlist-${key}" rows="4">${day.exercises.join('\n')}</textarea>
+        <p class="hint">Übungsnamen aus der Bibliothek verwenden</p>
+      </div>
+    </div>`;
+  });
+  document.getElementById('modal-plan-content').innerHTML=html;
+  document.getElementById('modal-plan').classList.add('open');
+}
+
+function savePlan(){
+  Object.keys(state.plan).forEach(key=>{
+    const lv=document.getElementById(`label-${key}`).value.trim();
+    if(lv) state.plan[key].label=lv;
+    const fv=document.getElementById(`focus-${key}`).value.trim();
+    if(fv) state.plan[key].focus=fv;
+    const raw=document.getElementById(`exlist-${key}`).value;
+    const exList=raw.split('\n').map(e=>e.trim()).filter(e=>e.length>0);
+    if(exList.length>0) state.plan[key].exercises=exList;
+  });
+  saveData();
+  populateExerciseDropdowns();
+  renderSessionSelector();
+  renderWeekPlan();
+  renderTodayPreview();
+  closeModal('modal-plan');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+
+// ===================== PHASE =====================
+// ===================== PHASE STATS =====================
+function getPhaseStats(){
+  const start = new Date(state.phaseStartDate);
+  const now = new Date();
+  const totalDays = Math.floor((now-start)/(1000*60*60*24));
+  const totalWeeks = (totalDays/7).toFixed(1);
+  // Count training sessions since phaseStartDate
+  const startStr = state.phaseStartDate;
+  const sessions = state.entries.filter(e=>e.date>=startStr&&e.phase===state.phase);
+  const uniqueDays = new Set(sessions.map(e=>e.date)).size;
+  return {totalDays, totalWeeks, uniqueDays};
+}
+
+// ===================== PHASE EDIT MODAL =====================
+let editingPhaseKey = null;
+
+function openEditPhase(key){
+  editingPhaseKey = key;
+  const ph = getPhase(key);
+  document.getElementById('modal-phase-edit-title').textContent=`⚙️ ${ph.name} anpassen`;
+  const isDeload = key==='deload';
+  document.getElementById('modal-phase-edit-content').innerHTML=`
+    <div class="form-group">
+      <label>Wiederholungen</label>
+      <input type="text" id="ep-wdh" value="${ph.wdh}" placeholder="z.B. 8–12">
+    </div>
+    <div class="form-group">
+      <label>Sätze pro Übung</label>
+      <input type="text" id="ep-saetze" value="${ph.saetze}" placeholder="z.B. 3–4">
+    </div>
+    ${!isDeload?`<div class="form-group">
+      <label>Intensität</label>
+      <input type="text" id="ep-intensity" value="${ph.intensity}" placeholder="z.B. 60–75% 1RM">
+    </div>`:'<input type="hidden" id="ep-intensity" value="">'}
+    <div class="form-group">
+      <label>Pause</label>
+      <input type="text" id="ep-pause" value="${ph.pause}" placeholder="z.B. 60–90 Sek">
+    </div>
+    <div class="form-group">
+      <label>Tempo</label>
+      <input type="text" id="ep-tempo" value="${ph.tempo}" placeholder="z.B. 2-1-2">
+    </div>
+    <button class="btn btn-danger btn-sm" onclick="resetPhaseParams('${key}')" style="margin-top:0.3rem">↺ Standardwerte wiederherstellen</button>`;
+  document.getElementById('modal-phase-edit').classList.add('open');
+}
+
+function savePhaseEdit(){
+  if(!editingPhaseKey) return;
+  if(!state.phaseParams[editingPhaseKey]) state.phaseParams[editingPhaseKey]={};
+  state.phaseParams[editingPhaseKey].wdh = document.getElementById('ep-wdh').value.trim();
+  state.phaseParams[editingPhaseKey].saetze = document.getElementById('ep-saetze').value.trim();
+  state.phaseParams[editingPhaseKey].intensity = document.getElementById('ep-intensity').value.trim();
+  state.phaseParams[editingPhaseKey].pause = document.getElementById('ep-pause').value.trim();
+  state.phaseParams[editingPhaseKey].tempo = document.getElementById('ep-tempo').value.trim();
+  saveData();
+  renderPhaseTab();
+  renderWeekPlan();
+  renderTodayPreview();
+  closeModal('modal-phase-edit');
+  editingPhaseKey=null;
+}
+
+function resetPhaseParams(key){
+  delete state.phaseParams[key];
+  saveData();
+  renderPhaseTab();
+  renderWeekPlan();
+  renderTodayPreview();
+  closeModal('modal-phase-edit');
+  editingPhaseKey=null;
+}
+
+function setPhase(val){
+  state.phase=val;
+  state.phaseStartDate=new Date().toISOString().split('T')[0];
+  saveData();
+  renderPhaseTab();
+  renderWeekPlan();
+  renderTodayPreview();
+  document.getElementById('phase-select').value=val;
+  // Update sets input to match new phase
+  const _ph = getPhase(val);
+  if(_ph && _ph.saetze){
+    const setsNum = parseInt(_ph.saetze.toString().split('–')[0]) || 3;
+    document.getElementById('sets').value = setsNum;
+  }
+}
+
+function renderPhaseTab(){
+  const ph = getPhase(state.phase);
+  document.getElementById('phase-select').value=state.phase;
+  const stats = getPhaseStats();
+  const isDeload = state.phase==='deload';
+
+  // Current phase card
+  document.getElementById('current-phase-display').innerHTML=`
+    <div class="phase-card ${ph.color}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <h3 style="margin:0">${ph.name} <span style="font-weight:400;font-size:12px;">– ${ph.subtitle}</span></h3>
+        <button class="btn btn-sm btn-outline" onclick="openEditPhase('${state.phase}')">⚙️ Anpassen</button>
+      </div>
+      <p>${ph.ziel}</p>
+      <div class="specs">
+        <div class="spec"><strong>${ph.wdh}</strong>Wiederholungen</div>
+        <div class="spec"><strong>${ph.saetze}</strong>Sätze</div>
+        <div class="spec"><strong>${ph.pause}</strong>Pause</div>
+        <div class="spec"><strong>${ph.tempo}</strong>Tempo</div>
+      </div>
+      ${isDeload?`<div style="margin-top:8px;background:rgba(255,255,255,0.6);border-radius:6px;padding:8px;font-size:12px;color:#4a148c;">
+        <strong>Deload-Regeln:</strong><br>
+        • 2 Sätze pro Übung<br>
+        • Gewicht = 50% des letzten Gewichts<br>
+        • 10 Wiederholungen pro Satz
+      </div>`:''}
+      <p style="margin-top:8px;font-size:11px;color:#666;">💡 ${ph.tipp}</p>
+    </div>`;
+
+  // Phase stats
+  document.getElementById('phase-stats-display').innerHTML=`
+    <div style="background:#f0f7ff;border-radius:10px;padding:0.9rem;border:1.5px solid #c8dff5;">
+      <div style="font-size:12px;font-weight:700;color:#1f4e78;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px;">📊 Aktuelle Phase – Statistik</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+        <div style="background:#fff;border-radius:8px;padding:8px;">
+          <div style="font-size:20px;font-weight:700;color:#185FA5;">${stats.totalWeeks}</div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase;margin-top:2px;">Wochen</div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:8px;">
+          <div style="font-size:20px;font-weight:700;color:#185FA5;">${stats.totalDays}</div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase;margin-top:2px;">Tage</div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:8px;">
+          <div style="font-size:20px;font-weight:700;color:#185FA5;">${stats.uniqueDays}</div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase;margin-top:2px;">Einheiten</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#888;margin-top:8px;">Aktiv seit: ${state.phaseStartDate}</div>
+    </div>`;
+
+  // All phases overview
+  let html='<div class="section-label">Alle Phasen im Überblick</div>';
+  Object.entries(PHASES).forEach(([key,p])=>{
+    const isActive=key===state.phase;
+    const eff=getPhase(key);
+    const hasCustom=!!state.phaseParams[key]&&Object.values(state.phaseParams[key]).some(v=>v);
+    html+=`<div class="phase-card ${p.color}" style="opacity:${isActive?1:0.7}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <h3 style="margin:0">${p.name}${hasCustom?' <span style="font-size:10px;color:#888;">(angepasst)</span>':''}</h3>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${isActive?'<span style="font-size:11px;font-weight:700;color:#185FA5;">✓ AKTIV</span>':`<button class="btn btn-sm btn-outline" onclick="setPhase('${key}')">Wechseln</button>`}
+          <button class="btn btn-sm" onclick="openEditPhase('${key}')" style="padding:5px 8px;">⚙️</button>
+        </div>
+      </div>
+      <div class="specs">
+        <div class="spec"><strong>${eff.wdh}</strong>Wdh.</div>
+        <div class="spec"><strong>${eff.saetze}</strong>Sätze</div>
+        <div class="spec"><strong>${eff.pause}</strong>Pause</div>
+        <div class="spec"><strong>${eff.tempo}</strong>Tempo</div>
+      </div>
+      <p style="margin-top:8px;font-size:11px;color:#666;">${p.ziel}</p>
+    </div>`;
+  });
+  document.getElementById('phase-info-cards').innerHTML=html;
+}
+
+// ===================== ENTRY =====================
+function addEntry(e){
+  e.preventDefault();
+  const exercise = document.getElementById('exercise').value;
+  if(!exercise){alert('Bitte erst eine Übung antippen!');return;}
+  const weight = parseFloat(document.getElementById('weight').value);
+  const reps = parseInt(document.getElementById('reps').value);
+  const sets = parseInt(document.getElementById('sets').value)||3;
+  const newPR = isNewPR(exercise, weight);
+  const entry={
+    id:Date.now(),
+    date:document.getElementById('date').value,
+    exercise,weight,reps,sets,
+    phase:state.phase,
+    session:state.activeSession,
+    isPR:newPR
+  };
+  state.entries.push(entry);
+  state.entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  saveData();
+  if(newPR) showPRToast();
+  renderHistory();
+  renderChart();
+  updateStats();
+  renderExerciseLibrary();
+  // Reset
+  document.getElementById('exercise').value='';
+  document.getElementById('weight').value='';
+  document.getElementById('reps').value='';
+  document.getElementById('sets').value='3';
+  document.getElementById('device-note-display').innerHTML='';
+  renderTodayPreview();
+}
+
+function deleteEntry(id){
+  state.entries=state.entries.filter(e=>e.id!==id);
+  saveData();
+  renderHistory();
+  updateStats();
+  renderExerciseLibrary();
+  renderTodayPreview();
+}
+
+// ===================== HISTORY =====================
+function renderHistory(){
+  const filterEx=document.getElementById('filter-exercise').value;
+  const list=filterEx?state.entries.filter(e=>e.exercise===filterEx):state.entries;
+  const div=document.getElementById('entries-list');
+  if(!list.length){div.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>Noch keine Einträge.</p></div>';return;}
+  div.innerHTML=list.map(e=>{
+    const d=new Date(e.date+'T00:00:00');
+    const ds=d.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'2-digit'});
+    const phaseName=e.phase?PHASES[e.phase]?.name:'';
+    return `<div class="entry-item ${e.isPR?'is-pr':''}">
+      <div class="entry-head">
+        <div>
+          <div class="entry-title">${e.exercise}${e.isPR?'<span class="pr-badge">🏆 PR</span>':''}</div>
+          <div class="entry-date">${ds}${phaseName?` · ${phaseName}`:''}</div>
+        </div>
+      </div>
+      <div class="entry-meta">
+        <div class="meta-item"><div class="meta-label">Gewicht</div><div class="meta-value">${e.weight} kg</div></div>
+        <div class="meta-item"><div class="meta-label">Wdh.</div><div class="meta-value">${e.reps}</div></div>
+        <div class="meta-item"><div class="meta-label">Sätze</div><div class="meta-value">${e.sets}</div></div>
+      </div>
+      <button class="delete-x" onclick="deleteEntry(${e.id})">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ===================== STATS =====================
+function updateStats(){
+  const uniqueDays=new Set(state.entries.map(e=>e.date)).size;
+  document.getElementById('stat-days').textContent=uniqueDays;
+  document.getElementById('stat-entries').textContent=state.entries.length;
+  const exMap={};
+  state.entries.forEach(e=>{
+    if(!exMap[e.exercise]) exMap[e.exercise]=[];
+    exMap[e.exercise].push(e);
+  });
+  let html='';
+  for(const [ex,data] of Object.entries(exMap)){
+    data.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const first=data[0],last=data[data.length-1];
+    const imp=last.weight-first.weight;
+    const pct=((imp/first.weight)*100).toFixed(1);
+    const isPos=imp>=0;
+    const pr=getPR(ex);
+    const fd=new Date(first.date+'T00:00:00').toLocaleDateString('de-DE',{month:'short',day:'2-digit'});
+    const ld=new Date(last.date+'T00:00:00').toLocaleDateString('de-DE',{month:'short',day:'2-digit'});
+    html+=`<div class="prog-card ${isPos?'':'neg'}">
+      <div class="prog-title">${ex}</div>
+      ${pr?`<div class="prog-pr">🏆 Bestleistung: ${pr.weight} kg × ${pr.reps} Wdh.</div>`:''}
+      <div class="prog-row">
+        <div class="prog-item"><div class="pl">Start</div><div class="pv">${first.weight} kg</div><div class="pd">${fd}</div></div>
+        <div class="prog-item"><div class="pl">Aktuell</div><div class="pv">${last.weight} kg</div><div class="pd">${ld}</div></div>
+      </div>
+      <div class="prog-change ${isPos?'':'neg'}">${isPos?'↑':'↓'} ${Math.abs(imp).toFixed(1)} kg (${Math.abs(pct)}%)</div>
+    </div>`;
+  }
+  document.getElementById('progress-cards').innerHTML=html||'<div class="empty-state"><p>Noch keine Fortschrittsdaten.</p></div>';
+}
+
+// ===================== EXPORT / IMPORT =====================
+function exportData(){
+  const payload = JSON.stringify(state, null, 2);
+  const blob = new Blob([payload], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `trainings-tracker-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const imported = JSON.parse(e.target.result);
+      // Validate: must have at least entries array
+      if(!Array.isArray(imported.entries)){
+        alert('Ungültige Datei – keine Einträge gefunden.');
+        return;
+      }
+      if(!confirm(`Import: ${imported.entries.length} Einträge gefunden.\n\nAlle aktuellen Daten werden ersetzt. Fortfahren?`)){
+        return;
+      }
+      state.entries = imported.entries||[];
+      state.plan = imported.plan||JSON.parse(JSON.stringify(DEFAULT_PLAN));
+      state.exerciseLibrary = imported.exerciseLibrary||JSON.parse(JSON.stringify(DEFAULT_EXERCISES));
+      state.phase = imported.phase||'hypertrophie';
+      state.phaseStartDate = imported.phaseStartDate||new Date().toISOString().split('T')[0];
+      state.activeSession = imported.activeSession||'A';
+      state.phaseParams = imported.phaseParams||{};
+      saveData();
+      init();
+      alert(`✅ Import erfolgreich!\n${state.entries.length} Einträge geladen.`);
+    } catch(err){
+      alert('Fehler beim Import: Datei konnte nicht gelesen werden.');
+    }
+  };
+  reader.readAsText(file);
+  // Reset so same file can be imported again if needed
+  event.target.value='';
+}
+
+// ===================== MODAL BG CLOSE =====================
+['modal-plan','modal-ex','modal-phase-edit'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){
+    if(e.target===this) closeModal(id);
+  });
+});
+
+// ===================== TIMER =====================
+const TIMER_PHASES = {
+  positiv: { label:'Positiv',    color:'#3498db' },
+  oben:    { label:'Oben halten',color:'#95a5a6' },
+  negativ: { label:'Negativ',    color:'#e74c3c' },
+  pause:   { label:'Wdh.-Pause', color:'#f39c12' }
+};
+
+// MODE: 'idle' | 'prep' | 'set' | 'rest'
+let T = {
+  mode: 'idle',
+  order: ['positiv','oben','negativ','pause'],
+  phaseIdx: 0,
+  currentSec: 0,
+  totalSec: 0,
+  repsDone: 0,
+  interval: null,
+  restSec: 0,
+  restTotal: 90,
+  prepSec: 0,
+  prepTotal: 5,
+  paused: false,
+  voiceEnabled: true
+};
+
+// ---- OPEN / CLOSE ----
+function openTimer(){
+  // Restore saved timer settings
+  const ts = state.timerSettings;
+  document.getElementById('t-prep').value    = ts.prep    ?? 5;
+  document.getElementById('t-positiv').value = ts.positiv ?? 2;
+  document.getElementById('t-oben').value    = ts.oben    ?? 1;
+  document.getElementById('t-negativ').value = ts.negativ ?? 2;
+  document.getElementById('t-pause').value   = ts.pause   ?? 1;
+  document.getElementById('t-rest').value    = ts.rest    ?? 90;
+  T.order        = ts.order        ? [...ts.order] : ['positiv','oben','negativ','pause'];
+  T.voiceEnabled = ts.voiceEnabled ?? true;
+  renderPhaseOrderSelector();
+  setVoice(T.voiceEnabled);
+  showTimerPanel('settings');
+  updateTimerMainBtn('start');
+  showBigStop(false);
+  document.getElementById('timer-popup-title').textContent='⏱️ Satz-Timer';
+  document.getElementById('timer-overlay').classList.add('open');
+}
+
+function closeTimer(){
+  clearInterval(T.interval);
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  T.mode='idle'; T.paused=false;
+  document.getElementById('timer-overlay').classList.remove('open');
+}
+
+// ---- SPEECH RECOGNITION (voice commands) ----
+
+
+
+
+
+
+
+// ---- PANEL SWITCH ----
+function showTimerPanel(name){
+  ['timer-settings-panel','timer-prep-display','timer-display','timer-rest-display']
+    .forEach(id=>document.getElementById(id).style.display='none');
+  const map={settings:'timer-settings-panel',prep:'timer-prep-display',set:'timer-display',rest:'timer-rest-display'};
+  document.getElementById(map[name]).style.display='block';
+}
+
+// ---- PHASE ORDER SELECTOR ----
+function renderPhaseOrderSelector(){
+  const order = T.order;
+  const all = ['positiv','oben','negativ','pause'];
+  document.getElementById('phase-order-selector').innerHTML = all.map(p=>{
+    const ph = TIMER_PHASES[p];
+    const idx = order.indexOf(p);
+    const active = idx !== -1;
+    return `<div class="timer-order-chip ${active?'sel':''}"
+      style="background:${ph.color};opacity:${active?1:0.3};"
+      onclick="togglePhaseOrder('${p}')">
+      ${active?(idx+1)+'. ':''}${ph.label}
+    </div>`;
+  }).join('');
+}
+
+function togglePhaseOrder(p){
+  const idx = T.order.indexOf(p);
+  if(idx!==-1){ if(T.order.length>2) T.order.splice(idx,1); }
+  else {
+    const canonical=['positiv','oben','negativ','pause'];
+    T.order = canonical.filter(x=>T.order.includes(x)||x===p);
+  }
+  state.timerSettings.order = [...T.order];
+  saveData();
+  renderPhaseOrderSelector();
+}
+
+// ---- MAIN ACTION BUTTON ----
+function timerMainAction(){
+  if(T.mode==='idle')       startPrep();
+  else if(T.mode==='prep'&&T.paused)  resumeTimer('prep');
+  else if(T.mode==='prep')            pauseTimer();
+  else if(T.mode==='set'&&T.paused)   resumeTimer('set');
+  else if(T.mode==='set')             pauseTimer();
+  else if(T.mode==='rest'&&T.paused)  resumeTimer('rest');
+  else if(T.mode==='rest')            pauseTimer();
+}
+
+// ---- PREP COUNTDOWN ----
+function startPrep(){
+  const prepSecs = parseInt(document.getElementById('t-prep').value)||0;
+  if(prepSecs<=0){ startSet(); return; }
+  T.mode='prep'; T.paused=false;
+  T.prepSec=prepSecs; T.prepTotal=prepSecs;
+  showTimerPanel('prep');
+  showBigStop(false);
+  updateTimerMainBtn('pause');
+  document.getElementById('timer-popup-title').textContent='⏱️ Vorbereitung';
+  updatePrepDisplay();
+  speak('Vorbereitung. ' + T.prepSec + ' Sekunden.');
+  T.interval=setInterval(()=>{
+    if(T.paused||T.mode!=='prep') return;
+    T.prepSec--;
+    updatePrepDisplay();
+    if(T.prepSec===5) speak('Fünf');
+    else if(T.prepSec===3) speak('Drei');
+    else if(T.prepSec===2) speak('Zwei');
+    else if(T.prepSec===1) speak('Eins');
+    else if(T.prepSec>0)   speak(String(T.prepSec));
+    else { clearInterval(T.interval); speak('Los!'); setTimeout(startSet,500); }
+  },1000);
+}
+
+function updatePrepDisplay(){
+  document.getElementById('prep-seconds').textContent=T.prepSec;
+  setArc('prep-arc', T.prepSec, T.prepTotal, '#9b59b6');
+}
+
+// ---- SET TIMER ----
+function saveTimerSettings(){
+  const g = id => { const el=document.getElementById(id); return el&&el.value!==''?parseInt(el.value):null; };
+  state.timerSettings = {
+    prep:         g('t-prep')    ?? 5,
+    positiv:      g('t-positiv') ?? 2,
+    oben:         g('t-oben')    ?? 1,
+    negativ:      g('t-negativ') ?? 2,
+    pause:        g('t-pause')   ?? 1,
+    rest:         g('t-rest')    ?? 90,
+    order:        [...T.order],
+    voiceEnabled: T.voiceEnabled
+  };
+  saveData();
+}
+
+function startSet(){
+  saveTimerSettings(); // persist before starting
+  T.mode='set'; T.paused=false; T.phaseIdx=0; T.repsDone=0; T.currentSec=0;
+  clearInterval(T.interval);
+  showTimerPanel('set');
+  showBigStop(true);
+  document.getElementById('timer-popup-title').textContent='⏱️ Satz läuft';
+  updateTimerMainBtn('pause');
+  document.getElementById('timer-rep-current').textContent='0';
+  showBigStop(true);
+  startShakeDetection();
+  startSetPhase();
+}
+
+// Build active phase list (only phases with >0 sec)
+function getActivePhases(){
+  return T.order.filter(p=>getPhaseSec(p)>0);
+}
+
+function startSetPhase(){
+  const phases = getActivePhases();
+  if(!phases.length) return;
+  const phase = phases[T.phaseIdx];
+  const secs = getPhaseSec(phase);
+  T.currentSec = secs; T.totalSec = secs;
+  const ph = TIMER_PHASES[phase];
+  document.getElementById('timer-phase-label').textContent = ph.label;
+  document.getElementById('timer-phase-label').style.color = ph.color;
+  updateSetDisplay();
+  // Only seconds, no phase name
+  setTimeout(()=>{ if(T.mode==='set'&&!T.paused&&T.currentSec>0) speak(String(T.currentSec)); }, 100);
+  T.interval = setInterval(()=>{
+    if(T.paused||T.mode!=='set') return;
+    T.currentSec--;
+    updateSetDisplay();
+    if(T.currentSec>0){
+      speak(String(T.currentSec));
+    } else {
+      clearInterval(T.interval);
+      nextSetPhase();
+    }
+  }, 1000);
+}
+
+function nextSetPhase(){
+  const phases = getActivePhases();
+  T.phaseIdx++;
+  if(T.phaseIdx >= phases.length){
+    // Full rep completed
+    T.phaseIdx = 0;
+    T.repsDone++;
+    document.getElementById('timer-rep-current').textContent = T.repsDone;
+    setTimeout(startSetPhase, 400);
+    return;
+  }
+  startSetPhase();
+}
+
+function updateSetDisplay(){
+  document.getElementById('timer-seconds').textContent=T.currentSec;
+  const phases=getActivePhases();
+  const phase=phases[T.phaseIdx]||T.order[0];
+  const color=TIMER_PHASES[phase]?.color||'#185FA5';
+  setArc('timer-arc',T.currentSec,T.totalSec,color);
+}
+
+// ---- STOP SET -> REST ----
+function timerStopSet(){
+  clearInterval(T.interval);
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopShakeDetection();
+  showBigStop(false);
+  // Manual stop: count partial rep if mid-cycle
+  const activePhases = getActivePhases();
+  if(T.phaseIdx > 0 && activePhases.length > 0) T.repsDone++;
+  T.mode='rest'; T.paused=false;
+  T.restTotal=parseInt(document.getElementById('t-rest').value)||90;
+  T.restSec=T.restTotal;
+  showTimerPanel('rest');
+  showBigStop(false);
+  document.getElementById('timer-popup-title').textContent='⏱️ Satz-Pause';
+  document.getElementById('rest-reps-result').textContent=T.repsDone+' Wiederholungen';
+  updateTimerMainBtn('pause');
+  updateRestDisplay();
+  playBeep();
+  startRestInterval();
+}
+
+function startRestInterval(){
+  T.interval=setInterval(()=>{
+    if(T.paused||T.mode!=='rest') return;
+    T.restSec--;
+    updateRestDisplay();
+    if(T.restSec===10){
+      speak('Noch zehn Sekunden. Vorbereiten für den nächsten Satz!');
+    } else if(T.restSec===5){
+      speak('Noch fünf Sekunden. Fertig machen!');
+    } else if(T.restSec===3) speak('Drei');
+    else if(T.restSec===2) speak('Zwei');
+    else if(T.restSec===1) speak('Eins');
+    else if(T.restSec<=0){
+      clearInterval(T.interval);
+      playBeep();
+      T.mode='idle';
+      updateTimerMainBtn('start');
+      document.getElementById('timer-popup-title').textContent='⏱️ Bereit für nächsten Satz';
+    }
+  },1000);
+}
+
+function updateRestDisplay(){
+  document.getElementById('rest-seconds').textContent=T.restSec;
+  setArc('rest-arc',T.restSec,T.restTotal,'#f39c12');
+}
+
+// ---- PAUSE / RESUME ----
+function pauseTimer(){
+  T.paused=true;
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  stopShakeDetection();
+  updateTimerMainBtn('resume');
+}
+
+function resumeTimer(mode){
+  T.paused=false;
+  T.mode=mode;
+  updateTimerMainBtn('pause');
+  if(mode==='set'){
+      startShakeDetection();
+  }
+}
+
+// ---- RESET ----
+function timerReset(){
+  clearInterval(T.interval);
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  stopShakeDetection();
+  showBigStop(false);
+  T.mode='idle'; T.paused=false; T.phaseIdx=0;
+  T.repsDone=0; T.currentSec=0; T.restSec=0; T.prepSec=0;
+  showTimerPanel('settings');
+  showBigStop(false);
+  document.getElementById('timer-popup-title').textContent='⏱️ Satz-Timer';
+  updateTimerMainBtn('start');
+}
+
+// ---- APPLY REP COUNT TO FORM ----
+function applyRepCount(){
+  document.getElementById('reps').value=T.repsDone;
+  // Flash confirm
+  const btn=event.target;
+  btn.textContent='✓ Übernommen!';
+  setTimeout(()=>btn.textContent='↑ Wdh. übernehmen',1500);
+}
+
+// ---- HELPERS ----
+function getPhaseSec(phase){
+  const map={positiv:'t-positiv',oben:'t-oben',negativ:'t-negativ',pause:'t-pause'};
+  return parseInt(document.getElementById(map[phase])?.value||0)||0;
+}
+
+function setArc(id, current, total, color){
+  const circ=2*Math.PI*70;
+  const offset=total>0?circ*(1-current/total):circ;
+  const el=document.getElementById(id);
+  el.style.strokeDashoffset=offset;
+  el.style.stroke=color;
+}
+
+function updateTimerMainBtn(mode){
+  const btn=document.getElementById('timer-btn-main');
+  if(mode==='start'){ btn.textContent='▶ Starten'; btn.className='timer-btn timer-btn-start'; }
+  else if(mode==='pause'){ btn.textContent='⏸ Pause'; btn.className='timer-btn timer-btn-pause'; }
+  else if(mode==='resume'){ btn.textContent='▶ Weiter'; btn.className='timer-btn timer-btn-start'; }
+}
+
+function setVoice(on){
+  T.voiceEnabled=on;
+  state.timerSettings.voiceEnabled=on;
+  saveData();
+  const btnOn=document.getElementById('voice-btn-on');
+  const btnOff=document.getElementById('voice-btn-off');
+  if(btnOn){
+    btnOn.style.background  = on?'#27ae60':'#2a3a5a';
+    btnOn.style.borderColor = on?'#27ae60':'#2a3a5a';
+    btnOn.style.color       = on?'#fff':'#7eb8e8';
+  }
+  if(btnOff){
+    btnOff.style.background  = on?'#2a3a5a':'#e74c3c';
+    btnOff.style.borderColor = on?'#2a3a5a':'#e74c3c';
+    btnOff.style.color       = on?'#7eb8e8':'#fff';
+  }
+  if(!on) window.speechSynthesis&&window.speechSynthesis.cancel();
+}
+
+function speak(text){
+  if(!T.voiceEnabled) return;
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='de-DE'; u.rate=1.1; u.pitch=1.0; u.volume=1.0;
+  window.speechSynthesis.speak(u);
+}
+
+
+// ---- BIG STOP BUTTON ----
+function showBigStop(visible){
+  const el = document.getElementById('big-stop-wrap');
+  if(el) el.style.display = visible ? 'block' : 'none';
+}
+
+// ---- SHAKE DETECTION ----
+let shakeEnabled = false;
+let lastShakeTime = 0;
+let lastAcc = {x:0, y:0, z:0};
+const SHAKE_THRESHOLD = 18; // m/s² – lower = more sensitive
+const SHAKE_COOLDOWN = 1500; // ms between triggers
+
+function startShakeDetection(){
+  if(!window.DeviceMotionEvent){ setShakeStatus('Schüttelerkennung nicht verfügbar'); return; }
+  // iOS 13+ needs permission
+  if(typeof DeviceMotionEvent.requestPermission === 'function'){
+    DeviceMotionEvent.requestPermission().then(r=>{
+      if(r==='granted'){ bindShake(); }
+      else { setShakeStatus('Schütteln: Zugriff verweigert'); }
+    }).catch(()=>{ setShakeStatus('Schütteln: Fehler'); });
+  } else {
+    bindShake();
+  }
+}
+
+function bindShake(){
+  shakeEnabled = true;
+  window.addEventListener('devicemotion', onDeviceMotion);
+  setShakeStatus('📳 Schütteln = Satz beenden');
+}
+
+function stopShakeDetection(){
+  shakeEnabled = false;
+  window.removeEventListener('devicemotion', onDeviceMotion);
+  setShakeStatus('');
+}
+
+function onDeviceMotion(e){
+  if(!shakeEnabled || T.mode !== 'set') return;
+  const acc = e.accelerationIncludingGravity;
+  if(!acc) return;
+  const dx = Math.abs(acc.x - lastAcc.x);
+  const dy = Math.abs(acc.y - lastAcc.y);
+  const dz = Math.abs(acc.z - lastAcc.z);
+  lastAcc = {x: acc.x, y: acc.y, z: acc.z};
+  const magnitude = Math.sqrt(dx*dx + dy*dy + dz*dz);
+  const now = Date.now();
+  if(magnitude > SHAKE_THRESHOLD && (now - lastShakeTime) > SHAKE_COOLDOWN){
+    lastShakeTime = now;
+    setShakeStatus('📳 Schütteln erkannt!');
+    playBeep();
+    setTimeout(()=>{ if(T.mode==='set') timerStopSet(); }, 200);
+  }
+}
+
+function setShakeStatus(text){
+  const el = document.getElementById('shake-status');
+  if(el) el.textContent = text;
+}
+
+// ===================== CHART =====================
+const PHASE_COLORS = {
+  hypertrophie:'#2e85d4', maximalkraft:'#e67e22',
+  kraftausdauer:'#27ae60', deload:'#9b59b6', '':'#888'
+};
+let chartMode = 'weight';
+
+function setChartMode(mode){
+  chartMode = mode;
+  document.getElementById('chart-tab-weight').className = mode==='weight'?'btn btn-sm btn-primary':'btn btn-sm';
+  document.getElementById('chart-tab-volume').className = mode==='volume'?'btn btn-sm btn-primary':'btn btn-sm';
+  renderChart();
+}
+
+function renderChart(){
+  const canvas = document.getElementById('main-chart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 320;
+  const H = 220;
+  const dpr = window.devicePixelRatio||1;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const selectedEx = document.getElementById('chart-exercise-select')?.value||'';
+  const entries = [...state.entries].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const emptyEl = document.getElementById('chart-empty');
+  const legendEl = document.getElementById('chart-legend');
+  const val = e => chartMode==='weight' ? e.weight : e.weight*e.reps*e.sets;
+
+  if(!entries.length){
+    if(emptyEl){ emptyEl.style.display='block'; canvas.style.display='none'; }
+    return;
+  }
+  if(emptyEl) emptyEl.style.display='none';
+  canvas.style.display='block';
+
+  // Build series
+  let series = [];
+  const COLORS = ['#2e85d4','#e74c3c','#27ae60','#f39c12','#9b59b6','#1abc9c','#e67e22','#3498db','#c0392b','#16a085'];
+  if(selectedEx){
+    const pts = entries.filter(e=>e.exercise===selectedEx).map(e=>({
+      x:new Date(e.date+'T00:00:00').getTime(), y:val(e),
+      phase:e.phase||'', date:e.date, isPR:e.isPR
+    }));
+    series = [{name:selectedEx, points:pts, byPhase:true}];
+  } else {
+    const names = [...new Set(entries.map(e=>e.exercise))];
+    series = names.map((n,i)=>({
+      name:n, color:COLORS[i%COLORS.length],
+      points:entries.filter(e=>e.exercise===n).map(e=>({
+        x:new Date(e.date+'T00:00:00').getTime(), y:val(e),
+        phase:e.phase||'', date:e.date
+      }))
+    }));
+  }
+
+  const allPts = series.flatMap(s=>s.points);
+  if(!allPts.length){ if(emptyEl){ emptyEl.style.display='block'; canvas.style.display='none'; } return; }
+
+  const minX=Math.min(...allPts.map(p=>p.x)), maxX=Math.max(...allPts.map(p=>p.x));
+  const rawMin=Math.min(...allPts.map(p=>p.y)), rawMax=Math.max(...allPts.map(p=>p.y));
+  const pad=(rawMax-rawMin)*0.12||rawMax*0.1||5;
+  const minY=rawMin-pad, maxY=rawMax+pad;
+  const rX=maxX-minX||86400000, rY=maxY-minY||1;
+
+  const PL=48,PR=12,PT=12,PB=38;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const tx=x=>PL+((x-minX)/rX)*cW;
+  const ty=y=>PT+(1-(y-minY)/rY)*cH;
+
+  // Grid
+  const steps=4;
+  for(let i=0;i<=steps;i++){
+    const yv=minY+(rY/steps)*i;
+    const cy=ty(yv);
+    ctx.strokeStyle='#e8edf3'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,cy); ctx.lineTo(PL+cW,cy); ctx.stroke();
+    ctx.fillStyle='#999'; ctx.font=`${10*dpr/dpr}px Arial`; ctx.textAlign='right';
+    ctx.fillText(Math.round(yv)+(chartMode==='weight'?'kg':''), PL-5, cy+3);
+  }
+
+  // X labels
+  const uniqueDates=[...new Set(allPts.map(p=>p.date))];
+  const labelIdxs=[0,Math.floor(uniqueDates.length/3),Math.floor(uniqueDates.length*2/3),uniqueDates.length-1]
+    .filter((v,i,a)=>v>=0&&v<uniqueDates.length&&a.indexOf(v)===i);
+  labelIdxs.forEach(i=>{
+    const d=new Date(uniqueDates[i]+'T00:00:00');
+    const cx=tx(d.getTime());
+    ctx.fillStyle='#aaa'; ctx.textAlign='center'; ctx.font='10px Arial';
+    ctx.fillText(d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}), cx, H-PB+14);
+    ctx.strokeStyle='#eee'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(cx,PT); ctx.lineTo(cx,PT+cH); ctx.stroke();
+  });
+
+  // Draw series
+  series.forEach(s=>{
+    const pts=s.points; if(!pts.length) return;
+    if(s.byPhase){
+      // Draw segments colored by phase
+      for(let i=1;i<pts.length;i++){
+        const c=PHASE_COLORS[pts[i].phase]||'#888';
+        ctx.strokeStyle=c; ctx.lineWidth=2.5;
+        ctx.beginPath(); ctx.moveTo(tx(pts[i-1].x),ty(pts[i-1].y));
+        ctx.lineTo(tx(pts[i].x),ty(pts[i].y)); ctx.stroke();
+      }
+      pts.forEach(p=>{
+        const c=PHASE_COLORS[p.phase]||'#888';
+        if(p.isPR){
+          ctx.beginPath(); ctx.fillStyle='#f39c12';
+          ctx.arc(tx(p.x),ty(p.y),7,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle='#fff'; ctx.font='bold 8px Arial'; ctx.textAlign='center';
+          ctx.fillText('PR',tx(p.x),ty(p.y)+3);
+        } else {
+          ctx.beginPath(); ctx.fillStyle=c;
+          ctx.arc(tx(p.x),ty(p.y),4,0,Math.PI*2); ctx.fill();
+        }
+      });
+    } else {
+      const c=s.color;
+      ctx.strokeStyle=c; ctx.lineWidth=2;
+      ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(tx(p.x),ty(p.y)):ctx.lineTo(tx(p.x),ty(p.y)));
+      ctx.stroke();
+      pts.forEach(p=>{ ctx.beginPath(); ctx.fillStyle=c; ctx.arc(tx(p.x),ty(p.y),3,0,Math.PI*2); ctx.fill(); });
+    }
+  });
+
+  // Legend
+  if(legendEl){
+    if(selectedEx){
+      legendEl.innerHTML=Object.entries(PHASE_COLORS).filter(([k])=>k&&PHASES[k]).map(([k,c])=>`
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#444;">
+          <span style="width:10px;height:10px;background:${c};border-radius:50%;display:inline-block;flex-shrink:0;"></span>${PHASES[k].name}
+        </span>`).join('')+'<span style="font-size:11px;color:#f39c12;font-weight:700;">🏆 = PR</span>';
+    } else {
+      legendEl.innerHTML=series.map(s=>`
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#444;">
+          <span style="width:14px;height:3px;background:${s.color};border-radius:2px;display:inline-block;flex-shrink:0;"></span>${s.name}
+        </span>`).join('');
+    }
+  }
+}
+
+loadData();
+function playBeep(){
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    // Three short ascending beeps
+    [0, 0.25, 0.5].forEach((delay, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 660 + i * 110; // 660, 770, 880 Hz
+      gain.gain.setValueAtTime(0.6, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.2);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.2);
+    });
+  } catch(e) {}
+}
+
+</script>
+
+</body>
+</html>
