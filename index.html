@@ -441,7 +441,13 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
         <div class="timer-phase-row" style="margin-top:4px;border-top:1px solid #1e2e4a;padding-top:8px;">
           <div class="timer-phase-color" style="background:#27ae60;"></div>
           <label>Satz-Pause</label>
-          <input type="number" id="t-rest" oninput="saveTimerSettings()" value="90" min="10" max="300">
+          <input type="number" id="t-rest" oninput="saveTimerSettings()" value="90" min="0" max="300">
+          <span style="color:#556;font-size:11px;">Sek</span>
+        </div>
+        <div class="timer-phase-row" style="margin-top:4px;">
+          <div class="timer-phase-color" style="background:#95a5a6;"></div>
+          <label>Aufwärm-Pause</label>
+          <input type="number" id="t-warmup-rest" oninput="saveTimerSettings()" value="30" min="0" max="120">
           <span style="color:#556;font-size:11px;">Sek</span>
         </div>
       </div>
@@ -472,36 +478,33 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 
     <!-- ===== PREP COUNTDOWN ===== -->
     <div id="timer-prep-display" style="display:none;">
-      <div class="timer-phase-label" style="color:#9b59b6;">Vorbereitung – Bereit machen!</div>
-      <div class="timer-circle-wrap">
-        <div class="timer-circle">
-          <svg width="160" height="160" viewBox="0 0 160 160">
-            <circle class="timer-circle-bg" cx="80" cy="80" r="70"/>
-            <circle class="timer-circle-progress" id="prep-arc" cx="80" cy="80" r="70"
-              stroke-dasharray="439.82" stroke-dashoffset="0" stroke="#9b59b6"/>
-          </svg>
-          <div class="timer-center">
-            <div class="timer-seconds" id="prep-seconds">5</div>
-            <div class="timer-unit">Sekunden</div>
-          </div>
-        </div>
+      <div class="timer-phase-label" style="color:#9b59b6;margin-bottom:0.5rem;">Vorbereitung – Bereit machen!</div>
+      <div style="text-align:center;margin-bottom:1rem;">
+        <div style="font-size:72px;font-weight:800;color:#9b59b6;line-height:1;" id="prep-seconds">5</div>
+        <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Sekunden</div>
       </div>
     </div>
 
     <!-- ===== ACTIVE SET DISPLAY ===== -->
     <div id="timer-display" style="display:none;">
       <div class="timer-phase-label" id="timer-phase-label">–</div>
-      <div class="timer-circle-wrap">
-        <div class="timer-circle">
-          <svg width="160" height="160" viewBox="0 0 160 160">
-            <circle class="timer-circle-bg" cx="80" cy="80" r="70"/>
-            <circle class="timer-circle-progress" id="timer-arc" cx="80" cy="80" r="70"
-              stroke-dasharray="439.82" stroke-dashoffset="0" stroke="#3498db"/>
-          </svg>
-          <div class="timer-center">
-            <div class="timer-seconds" id="timer-seconds">0</div>
-            <div class="timer-unit">Sekunden</div>
-          </div>
+      <div style="text-align:center;margin-bottom:0.8rem;">
+        <div class="timer-seconds" id="timer-seconds" style="font-size:72px;font-weight:800;color:#fff;line-height:1;">0</div>
+        <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:4px;" id="timer-phase-unit">Sekunden</div>
+      </div>
+      <!-- Last weight/reps info -->
+      <div id="timer-last-info" style="background:#0f1929;border-radius:10px;padding:0.6rem 1rem;margin-bottom:0.6rem;display:flex;justify-content:space-between;align-items:center;">
+        <div style="text-align:center;">
+          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Letztes Gewicht</div>
+          <div style="font-size:20px;font-weight:700;color:#fff;" id="timer-last-weight">–</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Letzte Wdh.</div>
+          <div style="font-size:20px;font-weight:700;color:#fff;" id="timer-last-reps">–</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Satz</div>
+          <div style="font-size:20px;font-weight:700;color:#fff;" id="timer-set-num">1</div>
         </div>
       </div>
       <!-- Permanent rep counter -->
@@ -516,27 +519,19 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 
     <!-- ===== SET FINISHED / REST TIMER ===== -->
     <div id="timer-rest-display" style="display:none;">
-      <div style="text-align:center;margin-bottom:0.6rem;">
+      <div style="text-align:center;margin-bottom:0.8rem;">
         <div style="font-size:13px;font-weight:700;color:#27ae60;margin-bottom:4px;">✅ Satz beendet!</div>
         <div style="font-size:22px;font-weight:700;color:#fff;" id="rest-reps-result">– Wiederholungen</div>
       </div>
-      <div class="timer-phase-label" style="color:#f39c12;" id="rest-phase-label">Satz-Pause</div>
-      <div class="timer-circle-wrap">
-        <div class="timer-circle">
-          <svg width="160" height="160" viewBox="0 0 160 160">
-            <circle class="timer-circle-bg" cx="80" cy="80" r="70"/>
-            <circle class="timer-circle-progress" id="rest-arc" cx="80" cy="80" r="70"
-              stroke-dasharray="439.82" stroke-dashoffset="0" stroke="#f39c12"/>
-          </svg>
-          <div class="timer-center">
-            <div class="timer-seconds" id="rest-seconds">90</div>
-            <div class="timer-unit">Pause</div>
-          </div>
-        </div>
+      <div class="timer-phase-label" style="color:#f39c12;margin-bottom:0.5rem;" id="rest-phase-label">Pause</div>
+      <div style="text-align:center;margin-bottom:1rem;">
+        <div style="font-size:72px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
+        <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Sekunden</div>
       </div>
       <div style="font-size:12px;color:#556;text-align:center;margin-bottom:0.5rem;">Wdh. ins Formular übernehmen?</div>
-      <button class="timer-btn" onclick="applyRepCount()" style="background:#185FA5;color:#fff;margin-bottom:0.5rem;font-size:13px;">↑ Wdh. übernehmen</button>
+      <button id="apply-rep-btn" class="timer-btn" onclick="applyRepCount()" style="background:#185FA5;color:#fff;margin-bottom:0.5rem;font-size:13px;">↑ Wdh. übernehmen</button>
     </div>
+
 
     <!-- ===== CONTROLS ===== -->
     <!-- Big stop button – shown during set -->
@@ -581,10 +576,10 @@ const DEFAULT_EXERCISES = [
 ];
 
 const PHASES = {
-  hypertrophie:{name:"Hypertrophie",subtitle:"Muskelaufbau",color:"hypertrophie",wdh:"8–12",saetze:"3–4",intensity:"60–75% 1RM",pause:"60–90 Sek",tempo:"2-1-2",ziel:"Muskelmasse aufbauen durch mittelhohe Wiederholungen und moderate Gewichte.",tipp:"Letzte 1–2 Wdh. sollten anstrengend sein (RPE 7–8). Gewicht erhöhen sobald alle Wdh. leicht fallen."},
-  maximalkraft:{name:"Maximalkraft",subtitle:"Kraft & Nervensystem",color:"maximalkraft",wdh:"3–5",saetze:"4–5",intensity:"85–90% 1RM",pause:"2–3 Min",tempo:"2-0-1",ziel:"Neuromuskuläre Koordination verbessern. Das Nervensystem lernt, mehr Muskelfasern gleichzeitig zu aktivieren.",tipp:"Sehr schwere Gewichte – Technik immer vor Gewicht! Aufwärmen sehr wichtig in dieser Phase."},
-  kraftausdauer:{name:"Kraftausdauer",subtitle:"Kapillarisierung & Ausdauer",color:"kraftausdauer",wdh:"15–20",saetze:"2–3",intensity:"50–65% 1RM",pause:"45–60 Sek",tempo:"2-1-2",ziel:"Bildung neuer Kapillaren verbessert Nährstoffversorgung und Regeneration.",tipp:"Kurze Pausen einhalten – das erzeugt den Ausdauerreiz. Gefühl des Brennens ist normal und gewünscht."},
-  deload:{name:"Deload-Woche",subtitle:"Aktive Erholung",color:"deload",wdh:"10",saetze:"2",intensity:"50% des letzten Gewichts",pause:"60 Sek",tempo:"2-1-2",ziel:"Gezielte Erholungswoche: Gelenke, Sehnen und Nervensystem regenerieren. Das Gewicht soll sich leicht anfühlen.",tipp:"Nur 2 Sätze pro Übung. Gewicht halbieren. Kein Ego – diese Woche ist Investition in die nächste Phase!"}
+  hypertrophie:{name:"Hypertrophie",subtitle:"Muskelaufbau",color:"hypertrophie",wdh:"8–12",saetze:"3–4",warmup:"1",intensity:"60–75% 1RM",pause:"60–90 Sek",tempo:"2-1-2",ziel:"Muskelmasse aufbauen durch mittelhohe Wiederholungen und moderate Gewichte.",tipp:"Letzte 1–2 Wdh. sollten anstrengend sein (RPE 7–8). Gewicht erhöhen sobald alle Wdh. leicht fallen."},
+  maximalkraft:{name:"Maximalkraft",subtitle:"Kraft & Nervensystem",color:"maximalkraft",wdh:"3–5",saetze:"4–5",warmup:"2",intensity:"85–90% 1RM",pause:"2–3 Min",tempo:"2-0-1",ziel:"Neuromuskuläre Koordination verbessern. Das Nervensystem lernt, mehr Muskelfasern gleichzeitig zu aktivieren.",tipp:"Sehr schwere Gewichte – Technik immer vor Gewicht! Aufwärmen sehr wichtig in dieser Phase."},
+  kraftausdauer:{name:"Kraftausdauer",subtitle:"Kapillarisierung & Ausdauer",color:"kraftausdauer",wdh:"15–20",saetze:"2–3",warmup:"1",intensity:"50–65% 1RM",pause:"45–60 Sek",tempo:"2-1-2",ziel:"Bildung neuer Kapillaren verbessert Nährstoffversorgung und Regeneration.",tipp:"Kurze Pausen einhalten – das erzeugt den Ausdauerreiz. Gefühl des Brennens ist normal und gewünscht."},
+  deload:{name:"Deload-Woche",subtitle:"Aktive Erholung",color:"deload",wdh:"10",saetze:"2",warmup:"0",intensity:"50% des letzten Gewichts",pause:"60 Sek",tempo:"2-1-2",ziel:"Gezielte Erholungswoche: Gelenke, Sehnen und Nervensystem regenerieren. Das Gewicht soll sich leicht anfühlen.",tipp:"Nur 2 Sätze pro Übung. Gewicht halbieren. Kein Ego – diese Woche ist Investition in die nächste Phase!"}
 };
 
 // ===================== STATE =====================
@@ -597,7 +592,7 @@ let state = {
   activeSession:"A",
   phaseParams:{},
   timerSettings:{
-    prep:5, positiv:2, oben:1, negativ:2, pause:1, rest:90,
+    prep:5, positiv:2, oben:1, negativ:2, pause:1, rest:90, warmupRest:30,
     order:['positiv','oben','negativ','pause'],
     voiceEnabled:true
   }
@@ -831,7 +826,7 @@ function renderTodayPreview(){
         <span class="phase-badge phase-${ph.color}">${ph.name}</span>
       </div>
       <div style="font-size:12px;color:#666;margin-bottom:8px;">
-        <strong>${ph.wdh} Wdh</strong> · <strong>${ph.saetze} Sätze</strong> · Pause ${ph.pause} · Tempo ${ph.tempo}
+        <strong>${ph.wdh} Wdh</strong> · <strong>${ph.saetze} Sätze</strong> + <strong>${ph.warmup||'1'} Aufwärm</strong> · Pause ${ph.pause} · Tempo ${ph.tempo}
         ${isDeload?'<br><span style="color:#7b1fa2;font-weight:600;">⚡ Gewicht halbieren gegenüber letzter Kraftausdauer-Phase</span>':''}
       </div>
       <ul class="ex-list">
@@ -901,6 +896,7 @@ function renderQuickSelect(exercises){
 }
 
 function quickSelectExercise(name){
+  checkUnsavedBeforeSwitch(name);
   document.getElementById('exercise').value=name;
   document.querySelectorAll('.qs-btn').forEach(b=>{
     b.classList.toggle('selected', b.querySelector('.qs-btn-name').textContent.replace('🏆 ','').trim()===name);
@@ -1048,6 +1044,10 @@ function openEditPhase(key){
       <label>Sätze pro Übung</label>
       <input type="text" id="ep-saetze" value="${ph.saetze}" placeholder="z.B. 3–4">
     </div>
+    <div class="form-group">
+      <label>Aufwärmsätze</label>
+      <input type="text" id="ep-warmup" value="${ph.warmup||'1'}" placeholder="z.B. 1">
+    </div>
     ${!isDeload?`<div class="form-group">
       <label>Intensität</label>
       <input type="text" id="ep-intensity" value="${ph.intensity}" placeholder="z.B. 60–75% 1RM">
@@ -1068,7 +1068,8 @@ function savePhaseEdit(){
   if(!editingPhaseKey) return;
   if(!state.phaseParams[editingPhaseKey]) state.phaseParams[editingPhaseKey]={};
   state.phaseParams[editingPhaseKey].wdh = document.getElementById('ep-wdh').value.trim();
-  state.phaseParams[editingPhaseKey].saetze = document.getElementById('ep-saetze').value.trim();
+  state.phaseParams[editingPhaseKey].saetze  = document.getElementById('ep-saetze').value.trim();
+  state.phaseParams[editingPhaseKey].warmup  = document.getElementById('ep-warmup').value.trim();
   state.phaseParams[editingPhaseKey].intensity = document.getElementById('ep-intensity').value.trim();
   state.phaseParams[editingPhaseKey].pause = document.getElementById('ep-pause').value.trim();
   state.phaseParams[editingPhaseKey].tempo = document.getElementById('ep-tempo').value.trim();
@@ -1123,6 +1124,7 @@ function renderPhaseTab(){
       <div class="specs">
         <div class="spec"><strong>${ph.wdh}</strong>Wiederholungen</div>
         <div class="spec"><strong>${ph.saetze}</strong>Sätze</div>
+        <div class="spec"><strong>${ph.warmup||'1'}</strong>Aufwärmsatz</div>
         <div class="spec"><strong>${ph.pause}</strong>Pause</div>
         <div class="spec"><strong>${ph.tempo}</strong>Tempo</div>
       </div>
@@ -1187,6 +1189,13 @@ function addEntry(e){
   e.preventDefault();
   const exercise = document.getElementById('exercise').value;
   if(!exercise){alert('Bitte erst eine Übung antippen!');return;}
+  // Block saving warmup sets
+  const _wCount = parseInt(getPhase(state.phase).warmup)||1;
+  if(T.setNum <= _wCount && T.mode!=='idle'){
+    if(!confirm('Satz '+T.setNum+' ist ein Aufwärmsatz und wird normalerweise nicht gespeichert.\nTrotzdem speichern?')){
+      return;
+    }
+  }
   const weight = parseFloat(document.getElementById('weight').value);
   const reps = parseInt(document.getElementById('reps').value);
   const sets = parseInt(document.getElementById('sets').value)||3;
@@ -1195,6 +1204,7 @@ function addEntry(e){
     id:Date.now(),
     date:document.getElementById('date').value,
     exercise,weight,reps,sets,
+    setNum: T.setNum || 1,
     phase:state.phase,
     session:state.activeSession,
     isPR:newPR
@@ -1245,7 +1255,7 @@ function renderHistory(){
       <div class="entry-meta">
         <div class="meta-item"><div class="meta-label">Gewicht</div><div class="meta-value">${e.weight} kg</div></div>
         <div class="meta-item"><div class="meta-label">Wdh.</div><div class="meta-value">${e.reps}</div></div>
-        <div class="meta-item"><div class="meta-label">Sätze</div><div class="meta-value">${e.sets}</div></div>
+        <div class="meta-item"><div class="meta-label">Satz</div><div class="meta-value">${e.setNum||e.sets||'–'}</div></div>
       </div>
       <button class="delete-x" onclick="deleteEntry(${e.id})">×</button>
     </div>`;
@@ -1358,14 +1368,24 @@ let T = {
   interval: null,
   restSec: 0,
   restTotal: 90,
+  warmupRestTotal: 30,
   prepSec: 0,
   prepTotal: 5,
   paused: false,
-  voiceEnabled: true
+  voiceEnabled: true,
+  setNum: 1,        // current set number
+  isWarmup: false,  // true = warmup set (shorter rest)
+  phaseComplete: false // true = all phases done = rep counts
 };
 
 // ---- OPEN / CLOSE ----
 function openTimer(){
+  // Check exercise selected BEFORE opening
+  const _ex = document.getElementById('exercise')?.value;
+  if(!_ex){
+    alert('Bitte erst eine Übung antippen!');
+    return;
+  }
   // Restore saved timer settings
   const ts = state.timerSettings;
   document.getElementById('t-prep').value    = ts.prep    ?? 5;
@@ -1374,8 +1394,19 @@ function openTimer(){
   document.getElementById('t-negativ').value = ts.negativ ?? 2;
   document.getElementById('t-pause').value   = ts.pause   ?? 1;
   document.getElementById('t-rest').value    = ts.rest    ?? 90;
-  T.order        = ts.order        ? [...ts.order] : ['positiv','oben','negativ','pause'];
-  T.voiceEnabled = ts.voiceEnabled ?? true;
+  T.order           = ts.order        ? [...ts.order] : ['positiv','oben','negativ','pause'];
+  T.voiceEnabled    = ts.voiceEnabled ?? true;
+  T.warmupRestTotal = ts.warmupRest ?? 30;
+  const _warmupEl = document.getElementById('t-warmup-rest');
+  if(_warmupEl) _warmupEl.value = T.warmupRestTotal;
+  // Show last weight/reps for selected exercise
+  // _ex already declared above
+  if(_ex){
+    const _last = getLastEntry(_ex);
+    document.getElementById('timer-last-weight').textContent = _last ? _last.weight+'kg' : '–';
+    document.getElementById('timer-last-reps').textContent   = _last ? _last.reps+' Wdh' : '–';
+  }
+  document.getElementById('timer-set-num').textContent = T.setNum;
   renderPhaseOrderSelector();
   setVoice(T.voiceEnabled);
   showTimerPanel('settings');
@@ -1458,23 +1489,31 @@ function startPrep(){
   updateTimerMainBtn('pause');
   document.getElementById('timer-popup-title').textContent='⏱️ Vorbereitung';
   updatePrepDisplay();
-  speak('Vorbereitung. ' + T.prepSec + ' Sekunden.');
-  T.interval=setInterval(()=>{
+  speak('Vorbereitung. ' + T.prepSec);
+  document.getElementById('prep-seconds').textContent = T.prepSec;
+  const _prepEnd = Date.now() + T.prepSec * 1000;
+  let _lastPrep = T.prepSec;
+  T.interval = setInterval(()=>{
     if(T.paused||T.mode!=='prep') return;
-    T.prepSec--;
-    updatePrepDisplay();
-    if(T.prepSec===5) speak('Fünf');
-    else if(T.prepSec===3) speak('Drei');
-    else if(T.prepSec===2) speak('Zwei');
-    else if(T.prepSec===1) speak('Eins');
-    else if(T.prepSec>0)   speak(String(T.prepSec));
-    else { clearInterval(T.interval); speak('Los!'); setTimeout(startSet,500); }
-  },1000);
+    const _msLeft = _prepEnd - Date.now();
+    const _secLeft = Math.ceil(_msLeft / 1000);
+    if(_secLeft !== _lastPrep && _secLeft > 0){
+      _lastPrep = _secLeft;
+      T.prepSec = _secLeft;
+      document.getElementById('prep-seconds').textContent = _secLeft;
+      speak(String(_secLeft));
+    }
+    if(_msLeft <= 0){
+      clearInterval(T.interval);
+      document.getElementById('prep-seconds').textContent = '';
+      speak('Los!');
+      setTimeout(startSet, 400);
+    }
+  }, 100);
 }
 
 function updatePrepDisplay(){
   document.getElementById('prep-seconds').textContent=T.prepSec;
-  setArc('prep-arc', T.prepSec, T.prepTotal, '#9b59b6');
 }
 
 // ---- SET TIMER ----
@@ -1487,6 +1526,7 @@ function saveTimerSettings(){
     negativ:      g('t-negativ') ?? 2,
     pause:        g('t-pause')   ?? 1,
     rest:         g('t-rest')    ?? 90,
+    warmupRest:   g('t-warmup-rest') ?? 30,
     order:        [...T.order],
     voiceEnabled: T.voiceEnabled
   };
@@ -1499,11 +1539,23 @@ function startSet(){
   clearInterval(T.interval);
   showTimerPanel('set');
   showBigStop(true);
-  document.getElementById('timer-popup-title').textContent='⏱️ Satz läuft';
+  if(!T.setNum) T.setNum=1;
+  const _warmupN = parseInt(getPhase(state.phase).warmup)||1;
+  const _isW = T.setNum <= _warmupN;
+  document.getElementById('timer-popup-title').textContent = _isW
+    ? '⏱️ Satz '+T.setNum+' – Aufwärmsatz'
+    : '⏱️ Satz '+T.setNum+' läuft';
   updateTimerMainBtn('pause');
   document.getElementById('timer-rep-current').textContent='0';
-  showBigStop(true);
+  document.getElementById('timer-set-num').textContent = T.setNum;
   startShakeDetection();
+  // Show last entry info
+  const _ex = document.getElementById('exercise')?.value;
+  if(_ex){
+    const _last = getLastEntry(_ex);
+    document.getElementById('timer-last-weight').textContent = _last ? _last.weight+'kg' : '–';
+    document.getElementById('timer-last-reps').textContent   = _last ? _last.reps+' Wdh' : '–';
+  }
   startSetPhase();
 }
 
@@ -1517,37 +1569,50 @@ function startSetPhase(){
   if(!phases.length) return;
   const phase = phases[T.phaseIdx];
   const secs = getPhaseSec(phase);
+  if(secs <= 0){ nextSetPhase(); return; } // skip 0-sec phases
   T.currentSec = secs; T.totalSec = secs;
   const ph = TIMER_PHASES[phase];
   document.getElementById('timer-phase-label').textContent = ph.label;
   document.getElementById('timer-phase-label').style.color = ph.color;
-  updateSetDisplay();
-  // Only seconds, no phase name
-  setTimeout(()=>{ if(T.mode==='set'&&!T.paused&&T.currentSec>0) speak(String(T.currentSec)); }, 100);
+  document.getElementById('timer-seconds').style.color = ph.color;
+  // Update display immediately with starting value
+  document.getElementById('timer-seconds').textContent = T.currentSec;
+  // Speak starting value
+  speak(String(T.currentSec));
+  // Use exact wall-clock target for drift-free countdown
+  const targetEnd = Date.now() + secs * 1000;
+  let lastSpoken = T.currentSec;
   T.interval = setInterval(()=>{
-    if(T.paused||T.mode!=='set') return;
-    T.currentSec--;
-    updateSetDisplay();
-    if(T.currentSec>0){
-      speak(String(T.currentSec));
-    } else {
+    if(T.paused || T.mode !== 'set') return;
+    const msLeft = targetEnd - Date.now();
+    const secLeft = Math.ceil(msLeft / 1000); // ceil: 2.9s -> 3, 1.0s -> 1
+    if(secLeft !== lastSpoken && secLeft > 0){
+      lastSpoken = secLeft;
+      T.currentSec = secLeft;
+      document.getElementById('timer-seconds').textContent = secLeft;
+      speak(String(secLeft));
+    }
+    if(msLeft <= 0){
       clearInterval(T.interval);
+      T.currentSec = 0;
+      document.getElementById('timer-seconds').textContent = '';
       nextSetPhase();
     }
-  }, 1000);
+  }, 100); // poll every 100ms - precise but not heavy
 }
 
 function nextSetPhase(){
   const phases = getActivePhases();
   T.phaseIdx++;
   if(T.phaseIdx >= phases.length){
-    // Full rep completed
+    // ALL phases done = one complete rep
     T.phaseIdx = 0;
     T.repsDone++;
     document.getElementById('timer-rep-current').textContent = T.repsDone;
     setTimeout(startSetPhase, 400);
     return;
   }
+  // Mid-rep: do NOT count
   startSetPhase();
 }
 
@@ -1555,8 +1620,12 @@ function updateSetDisplay(){
   document.getElementById('timer-seconds').textContent=T.currentSec;
   const phases=getActivePhases();
   const phase=phases[T.phaseIdx]||T.order[0];
-  const color=TIMER_PHASES[phase]?.color||'#185FA5';
-  setArc('timer-arc',T.currentSec,T.totalSec,color);
+  const ph=TIMER_PHASES[phase];
+  if(ph){
+    document.getElementById('timer-phase-label').textContent=ph.label;
+    document.getElementById('timer-phase-label').style.color=ph.color;
+    document.getElementById('timer-seconds').style.color=ph.color;
+  }
 }
 
 // ---- STOP SET -> REST ----
@@ -1565,16 +1634,29 @@ function timerStopSet(){
   window.speechSynthesis && window.speechSynthesis.cancel();
   stopShakeDetection();
   showBigStop(false);
-  // Manual stop: count partial rep if mid-cycle
-  const activePhases = getActivePhases();
-  if(T.phaseIdx > 0 && activePhases.length > 0) T.repsDone++;
+  // Manual stop: NEVER count partial rep (phaseIdx>0 = mid-rep = incomplete)
+  // T.repsDone stays as completed full reps only
   T.mode='rest'; T.paused=false;
-  T.restTotal=parseInt(document.getElementById('t-rest').value)||90;
-  T.restSec=T.restTotal;
+  // Warmup sets = first N sets based on phase warmup count
+  const _warmupCount = parseInt(getPhase(state.phase).warmup)||1;
+  const isWarmupSet = (T.setNum <= _warmupCount);
+  const restVal = isWarmupSet
+    ? (parseInt(document.getElementById('t-warmup-rest').value)||30)
+    : (parseInt(document.getElementById('t-rest').value)||90);
+  T.restTotal = restVal;
+  T.restSec = restVal;
   showTimerPanel('rest');
   showBigStop(false);
-  document.getElementById('timer-popup-title').textContent='⏱️ Satz-Pause';
+  const _wN2 = parseInt(getPhase(state.phase).warmup)||1;
+  const _isWS = (T.setNum <= _wN2);
+  document.getElementById('timer-popup-title').textContent = _isWS ? '⏱️ Aufwärm-Pause' : '⏱️ Satz-Pause';
   document.getElementById('rest-reps-result').textContent=T.repsDone+' Wiederholungen';
+  // Hide "Wdh übernehmen" button during warmup sets
+  const _applyBtn = document.getElementById('apply-rep-btn');
+  if(_applyBtn){
+    const _wc = parseInt(getPhase(state.phase).warmup)||1;
+    _applyBtn.style.display = (T.setNum <= _wc) ? 'none' : 'block';
+  }
   updateTimerMainBtn('pause');
   updateRestDisplay();
   playBeep();
@@ -1596,16 +1678,18 @@ function startRestInterval(){
     else if(T.restSec<=0){
       clearInterval(T.interval);
       playBeep();
+      T.setNum++;
+      T.isWarmup = false; // after warmup, revert to normal
+      document.getElementById('timer-set-num').textContent = T.setNum;
       T.mode='idle';
       updateTimerMainBtn('start');
-      document.getElementById('timer-popup-title').textContent='⏱️ Bereit für nächsten Satz';
+      document.getElementById('timer-popup-title').textContent='⏱️ Satz '+T.setNum+' – Bereit!';
     }
   },1000);
 }
 
 function updateRestDisplay(){
   document.getElementById('rest-seconds').textContent=T.restSec;
-  setArc('rest-arc',T.restSec,T.restTotal,'#f39c12');
 }
 
 // ---- PAUSE / RESUME ----
@@ -1633,6 +1717,7 @@ function timerReset(){
   showBigStop(false);
   T.mode='idle'; T.paused=false; T.phaseIdx=0;
   T.repsDone=0; T.currentSec=0; T.restSec=0; T.prepSec=0;
+  T.setNum=1;
   showTimerPanel('settings');
   showBigStop(false);
   document.getElementById('timer-popup-title').textContent='⏱️ Satz-Timer';
@@ -1641,11 +1726,11 @@ function timerReset(){
 
 // ---- APPLY REP COUNT TO FORM ----
 function applyRepCount(){
-  document.getElementById('reps').value=T.repsDone;
-  // Flash confirm
-  const btn=event.target;
-  btn.textContent='✓ Übernommen!';
-  setTimeout(()=>btn.textContent='↑ Wdh. übernehmen',1500);
+  document.getElementById('reps').value = T.repsDone;
+  document.getElementById('sets').value = T.setNum;
+  const btn = event.target;
+  btn.textContent = '✓ Übernommen!';
+  setTimeout(()=>btn.textContent='↑ Wdh. übernehmen', 1500);
 }
 
 // ---- HELPERS ----
@@ -1697,6 +1782,33 @@ function speak(text){
   window.speechSynthesis.speak(u);
 }
 
+
+// ---- UNSAVED CHANGES WARNING ----
+let _pendingExercise = null; // exercise selected but not saved
+
+function checkUnsavedBeforeSwitch(newExercise){
+  const weight = document.getElementById('weight').value;
+  const reps   = document.getElementById('reps').value;
+  const curEx  = document.getElementById('exercise').value;
+  const _wCnt = parseInt(getPhase(state.phase).warmup)||1;
+  if(curEx && weight && reps && newExercise !== curEx && T.setNum > _wCnt){
+    if(confirm('Gewicht/Wiederholungen noch nicht gespeichert. Jetzt speichern?')){
+      const w=parseFloat(weight), r=parseInt(reps), s=parseInt(document.getElementById('sets').value)||3;
+      if(w && r){
+        const np=isNewPR(curEx,w);
+        state.entries.push({id:Date.now(),date:document.getElementById('date').value,
+          exercise:curEx,weight:w,reps:r,sets:s,setNum:T.setNum||1,
+          phase:state.phase,session:state.activeSession,isPR:np});
+        state.entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
+        saveData(); if(np) showPRToast();
+        renderHistory(); renderChart(); updateStats(); renderExerciseLibrary();
+        document.getElementById('weight').value='';
+        document.getElementById('reps').value='';
+        renderTodayPreview();
+      }
+    }
+  }
+}
 
 // ---- BIG STOP BUTTON ----
 function showBigStop(visible){
