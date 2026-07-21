@@ -912,18 +912,17 @@ function quickSelectExercise(name){
   const weightEl = document.getElementById('weight');
   const repsEl   = document.getElementById('reps');
   const isEmpty  = !weightEl.value && !repsEl.value;
-  if(isEmpty){
-    const last = getLastEntry(name);
-    const isDeload = state.phase==='deload';
-    if(isDeload && last){
-      weightEl.value = Math.round((last.weight/2)*2)/2;
-      repsEl.value   = 10;
-      document.getElementById('sets').value = 1;
-    } else if(last){
-      weightEl.value = last.weight;
-      repsEl.value   = last.reps;
-    }
+  // Always prefill weight from last entry (usually stays same)
+  // Never prefill reps - user always types their actual reps
+  const last = getLastEntry(name);
+  const isDeload = state.phase==='deload';
+  if(isDeload && last){
+    weightEl.value = Math.round((last.weight/2)*2)/2;
+  } else if(last){
+    weightEl.value = last.weight;
   }
+  // Always clear reps so user types fresh value
+  repsEl.value = '';
   weightEl.focus();
 }
 
