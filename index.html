@@ -1193,16 +1193,17 @@ function addEntry(e){
   e.preventDefault();
   const exercise = document.getElementById('exercise').value;
   if(!exercise){alert('Bitte erst eine Übung antippen!');return;}
-  // Block saving warmup sets
+  // Block saving warmup sets (only when timer is running, not manual entry)
   const _wCount = parseInt(getPhase(state.phase).warmup)||1;
-  if(T.setNum <= _wCount && T.mode!=='idle'){
+  if(T.mode !== 'idle' && T.setNum <= _wCount){
     if(!confirm('Satz '+T.setNum+' ist ein Aufwärmsatz und wird normalerweise nicht gespeichert.\nTrotzdem speichern?')){
       return;
     }
   }
   const weight = parseFloat(document.getElementById('weight').value);
   const reps = parseInt(document.getElementById('reps').value);
-  const sets = parseInt(document.getElementById('sets').value)||3;
+  const sets = parseInt(document.getElementById('sets').value)||1;
+  T.setNum = sets; // keep T.setNum in sync with form field
   const newPR = isNewPR(exercise, weight);
   const entry={
     id:Date.now(),
@@ -1227,6 +1228,7 @@ function addEntry(e){
   document.getElementById('weight').value='';
   document.getElementById('reps').value='';
   document.getElementById('sets').value = _curSet + 1;
+  T.setNum = _curSet + 1; // keep timer in sync
   document.getElementById('device-note-display').innerHTML='';
   renderTodayPreview();
 }
