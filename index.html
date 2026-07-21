@@ -239,8 +239,8 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
           </div>
         </div>
         <div class="form-group">
-          <label>Sätze</label>
-          <input type="number" id="sets" value="3" required>
+          <label>Satz Nr.</label>
+          <input type="number" id="sets" value="1" min="1" required>
         </div>
         <button type="submit" class="btn btn-primary">✓ Speichern</button>
       </form>
@@ -645,11 +645,8 @@ function init(){
   renderPhaseTab();
   renderHistory();
   updateStats();
-  // Pre-fill sets from active phase
-  const _ph = getPhase(state.phase);
-  if(_ph && _ph.saetze){
-    document.getElementById('sets').value = parseInt(_ph.saetze.toString().split('–')[0]) || 3;
-  }
+  // Start at Satz 1
+  document.getElementById('sets').value = 1;
 }
 
 // ===================== TAB SWITCH =====================
@@ -904,6 +901,10 @@ function renderQuickSelect(exercises){
 
 function quickSelectExercise(name){
   checkUnsavedBeforeSwitch(name);
+  // Reset set number when switching exercise
+  if(document.getElementById('exercise').value !== name){
+    document.getElementById('sets').value = 1;
+  }
   document.getElementById('exercise').value=name;
   document.querySelectorAll('.qs-btn').forEach(b=>{
     b.classList.toggle('selected', b.querySelector('.qs-btn-name').textContent.replace('🏆 ','').trim()===name);
@@ -1106,12 +1107,8 @@ function setPhase(val){
   renderWeekPlan();
   renderTodayPreview();
   document.getElementById('phase-select').value=val;
-  // Update sets input to match new phase
-  const _ph = getPhase(val);
-  if(_ph && _ph.saetze){
-    const setsNum = parseInt(_ph.saetze.toString().split('–')[0]) || 3;
-    document.getElementById('sets').value = setsNum;
-  }
+  // Reset to Satz 1 on phase change
+  document.getElementById('sets').value = 1;
 }
 
 function renderPhaseTab(){
@@ -1225,10 +1222,11 @@ function addEntry(e){
   updateStats();
   renderExerciseLibrary();
   // Reset
-  document.getElementById('exercise').value='';
+  // Auto-increment set number, keep exercise selected
+  const _curSet = parseInt(document.getElementById('sets').value)||1;
   document.getElementById('weight').value='';
   document.getElementById('reps').value='';
-  document.getElementById('sets').value='3';
+  document.getElementById('sets').value = _curSet + 1;
   document.getElementById('device-note-display').innerHTML='';
   renderTodayPreview();
 }
