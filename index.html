@@ -1228,10 +1228,10 @@ function addEntry(e){
   // Reset
   // Auto-increment set number, keep exercise selected
   const _curSet = parseInt(document.getElementById('sets').value)||1;
-  document.getElementById('weight').value='';
+  // Keep weight (usually same between sets), only clear reps
   document.getElementById('reps').value='';
   document.getElementById('sets').value = _curSet + 1;
-  T.setNum = _curSet + 1; // keep timer in sync
+  T.setNum = _curSet + 1;
   document.getElementById('device-note-display').innerHTML='';
   renderTodayPreview();
 }
