@@ -528,8 +528,15 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
         <div style="font-size:72px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
         <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Sekunden</div>
       </div>
-      <div style="font-size:12px;color:#556;text-align:center;margin-bottom:0.5rem;">Wdh. ins Formular übernehmen?</div>
-      <button id="apply-rep-btn" class="timer-btn" onclick="applyRepCount()" style="background:#185FA5;color:#fff;margin-bottom:0.5rem;font-size:13px;">↑ Wdh. übernehmen</button>
+      <div style="margin-bottom:0.8rem;">
+        <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:6px;">Wiederholungen korrigieren</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+          <button type="button" onclick="adjustReps(-1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:8px;width:44px;height:44px;font-size:22px;cursor:pointer;font-weight:700;">−</button>
+          <input type="number" id="rest-reps-input" style="width:70px;text-align:center;font-size:28px;font-weight:800;color:#fff;background:#0f1929;border:2px solid #2a3a5a;border-radius:10px;padding:6px;-moz-appearance:textfield;" oninput="T.repsDone=parseInt(this.value)||0">
+          <button type="button" onclick="adjustReps(1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:8px;width:44px;height:44px;font-size:22px;cursor:pointer;font-weight:700;">+</button>
+        </div>
+      </div>
+      <button id="apply-rep-btn" class="timer-btn" onclick="applyRepCount()" style="background:#185FA5;color:#fff;margin-bottom:0.5rem;font-size:13px;">↑ Wdh. & Gewicht übernehmen</button>
     </div>
 
 
@@ -1651,6 +1658,9 @@ function timerStopSet(){
   const _isWS = (T.setNum <= _wN2);
   document.getElementById('timer-popup-title').textContent = _isWS ? '⏱️ Aufwärm-Pause' : '⏱️ Satz-Pause';
   document.getElementById('rest-reps-result').textContent=T.repsDone+' Wiederholungen';
+  // Populate editable reps input
+  const _repsInput = document.getElementById('rest-reps-input');
+  if(_repsInput) _repsInput.value = T.repsDone;
   // Hide "Wdh übernehmen" button during warmup sets
   const _applyBtn = document.getElementById('apply-rep-btn');
   if(_applyBtn){
@@ -1725,12 +1735,24 @@ function timerReset(){
 }
 
 // ---- APPLY REP COUNT TO FORM ----
+function adjustReps(delta){
+  const input = document.getElementById('rest-reps-input');
+  const current = parseInt(input.value)||0;
+  const newVal = Math.max(0, current + delta);
+  input.value = newVal;
+  T.repsDone = newVal;
+  document.getElementById('rest-reps-result').textContent = newVal + ' Wiederholungen';
+}
+
 function applyRepCount(){
-  document.getElementById('reps').value = T.repsDone;
+  // Read from editable input (may have been corrected)
+  const input = document.getElementById('rest-reps-input');
+  const reps = input ? (parseInt(input.value)||T.repsDone) : T.repsDone;
+  document.getElementById('reps').value = reps;
   document.getElementById('sets').value = T.setNum;
   const btn = event.target;
   btn.textContent = '✓ Übernommen!';
-  setTimeout(()=>btn.textContent='↑ Wdh. übernehmen', 1500);
+  setTimeout(()=>btn.textContent='↑ Wdh. & Gewicht übernehmen', 1800);
 }
 
 // ---- HELPERS ----
