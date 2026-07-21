@@ -844,7 +844,7 @@ function renderTodayPreview(){
             lastText=`Deload: ~${deloadWeight}kg × 10`;
             lastColor='#7b1fa2';
           } else {
-            lastText=last?`${last.weight}kg×${last.reps}`:'Neu';
+            lastText=last?`${last.weight>0?last.weight+'kg':'KG'}×${last.reps}`:'Neu';
             lastColor=last?'#185FA5':'#ccc';
           }
           return `<li>
@@ -864,7 +864,8 @@ function renderTodayPreview(){
 function getLastEntry(exerciseName){
   const entries = state.entries.filter(e=>e.exercise===exerciseName);
   if(!entries.length) return null;
-  return entries.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  // Sort by id (timestamp) descending - most recent first, handles same-day entries correctly
+  return entries.sort((a,b)=>b.id-a.id)[0];
 }
 
 // ===================== QUICK SELECT =====================
@@ -886,7 +887,7 @@ function renderQuickSelect(exercises){
             const dw = Math.round((last.weight/2)*2)/2;
             subText=`Deload: ~${dw}kg × 10`;
           } else {
-            subText=last?`Zuletzt: ${last.weight}kg × ${last.reps}`:'Neu';
+            subText=last?`Zuletzt: ${last.weight>0?last.weight+'kg':'KG'} × ${last.reps}`:'Neu';
           }
           return `<button type="button" class="qs-btn ${currentVal===e?'selected':''}" onclick="quickSelectExercise('${e.replace(/'/g,"\\'")}')">
             <div class="qs-btn-inner">
@@ -903,6 +904,7 @@ function quickSelectExercise(name){
   checkUnsavedBeforeSwitch(name);
   document.getElementById('sets').value = 1;
   T.setNum = 1;
+  T.warmupDone = 0;
   document.getElementById('exercise').value=name;
   document.querySelectorAll('.qs-btn').forEach(b=>{
     b.classList.toggle('selected', b.querySelector('.qs-btn-name').textContent.replace('🏆 ','').trim()===name);
@@ -1195,12 +1197,16 @@ function addEntry(e){
   e.preventDefault();
   const exercise = document.getElementById('exercise').value;
   if(!exercise){alert('Bitte erst eine Übung antippen!');return;}
-  // Block saving warmup sets (only when timer is running, not manual entry)
+  // Warmup sets are NOT saved
   const _wCount = parseInt(getPhase(state.phase).warmup)||1;
-  if(T.mode !== 'idle' && T.setNum <= _wCount){
-    if(!confirm('Satz '+T.setNum+' ist ein Aufwärmsatz und wird normalerweise nicht gespeichert.\nTrotzdem speichern?')){
-      return;
-    }
+  if(T.warmupDone < _wCount){
+    T.warmupDone++;
+    document.getElementById('reps').value = '';
+    const _done = T.warmupDone >= _wCount;
+    if(_done){ document.getElementById('sets').value = 1; T.setNum = 1; }
+    alert('Aufwärmsatz ' + T.warmupDone + '/' + _wCount + ' abgeschlossen.' +
+      (_done ? '\nArbeitssätze starten!' : ''));
+    return;
   }
   const weight = parseFloat(document.getElementById('weight').value);
   const reps = parseInt(document.getElementById('reps').value);
@@ -1382,9 +1388,9 @@ let T = {
   prepTotal: 5,
   paused: false,
   voiceEnabled: true,
-  setNum: 1,        // current set number
-  isWarmup: false,  // true = warmup set (shorter rest)
-  phaseComplete: false // true = all phases done = rep counts
+  setNum: 1,
+  warmupDone: 0,
+  phaseComplete: false
 };
 
 // ---- OPEN / CLOSE ----
@@ -1729,7 +1735,7 @@ function timerReset(){
   showBigStop(false);
   T.mode='idle'; T.paused=false; T.phaseIdx=0;
   T.repsDone=0; T.currentSec=0; T.restSec=0; T.prepSec=0;
-  T.setNum=1;
+  T.setNum=1; T.warmupDone=0;
   showTimerPanel('settings');
   showBigStop(false);
   document.getElementById('timer-popup-title').textContent='⏱️ Satz-Timer';
