@@ -901,10 +901,10 @@ function renderQuickSelect(exercises){
 
 function quickSelectExercise(name){
   checkUnsavedBeforeSwitch(name);
-  // Reset set number when switching exercise
-  if(document.getElementById('exercise').value !== name){
-    document.getElementById('sets').value = 1;
-  }
+  // Always reset set number when selecting any exercise
+  document.getElementById('sets').value = 1;
+  // Also reset T.setNum for timer
+  T.setNum = 1;
   document.getElementById('exercise').value=name;
   document.querySelectorAll('.qs-btn').forEach(b=>{
     b.classList.toggle('selected', b.querySelector('.qs-btn-name').textContent.replace('🏆 ','').trim()===name);
