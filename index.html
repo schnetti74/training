@@ -479,9 +479,13 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
     <!-- ===== PREP COUNTDOWN ===== -->
     <div id="timer-prep-display" style="display:none;">
       <div class="timer-phase-label" style="color:#9b59b6;margin-bottom:0.5rem;">Vorbereitung – Bereit machen!</div>
-      <div style="text-align:center;margin-bottom:1rem;">
+      <div style="text-align:center;margin-bottom:0.8rem;">
         <div style="font-size:72px;font-weight:800;color:#9b59b6;line-height:1;" id="prep-seconds">5</div>
         <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Sekunden</div>
+      </div>
+      <div id="prep-last-info" style="background:#0f1929;border-radius:10px;padding:0.6rem;display:flex;justify-content:space-around;text-align:center;">
+        <div><div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;">Letztes Gewicht</div><div style="font-size:18px;font-weight:700;color:#fff;" id="prep-last-weight">–</div></div>
+        <div><div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;">Letzte Wdh.</div><div style="font-size:18px;font-weight:700;color:#fff;" id="prep-last-reps">–</div></div>
       </div>
     </div>
 
@@ -1526,6 +1530,13 @@ function startPrep(){
   updatePrepDisplay();
   speak('Vorbereitung. ' + T.prepSec);
   document.getElementById('prep-seconds').textContent = T.prepSec;
+  // Show last entry info
+  const _prepEx = document.getElementById('exercise')?.value;
+  if(_prepEx){
+    const _prepLast = getLastEntry(_prepEx);
+    document.getElementById('prep-last-weight').textContent = _prepLast ? (_prepLast.weight>0?_prepLast.weight+'kg':'KG') : '–';
+    document.getElementById('prep-last-reps').textContent   = _prepLast ? _prepLast.reps+' Wdh' : '–';
+  }
   const _prepEnd = Date.now() + T.prepSec * 1000;
   let _lastPrep = T.prepSec;
   T.interval = setInterval(()=>{
@@ -1718,12 +1729,17 @@ function startRestInterval(){
     else if(T.restSec<=0){
       clearInterval(T.interval);
       playBeep();
+      // Auto-advance: increment setNum, show ready state
       T.setNum++;
-      T.isWarmup = false;
       document.getElementById('timer-set-num') && (document.getElementById('timer-set-num').textContent = T.setNum);
       T.mode='idle';
       updateTimerMainBtn('start');
       document.getElementById('timer-popup-title').textContent='⏱️ Satz '+T.setNum+' – Bereit!';
+      document.getElementById('rest-phase-label').textContent='Pause beendet – Starten!';
+      document.getElementById('rest-seconds').textContent='';
+      // Reset skip button
+      const _skipBtn = document.querySelector('[onclick="startNextSet()"]');
+      if(_skipBtn){ _skipBtn.textContent='▶ Weiter'; _skipBtn.setAttribute('onclick','skipRest()'); }
     }
   },1000);
 }
@@ -1779,14 +1795,23 @@ function adjustWeight(delta){
 }
 
 function skipRest(){
-  // Stop rest timer and start next set immediately
+  // Stop rest timer - stay in rest display, user taps Start for next set
   clearInterval(T.interval);
+  document.getElementById('rest-seconds').textContent = '0';
+  document.getElementById('rest-phase-label').textContent = 'Pause beendet';
+  // Change Weiter button to Start
+  const skipBtn = document.querySelector('[onclick="skipRest()"]');
+  if(skipBtn){ skipBtn.textContent = '▶ Nächster Satz'; skipBtn.onclick = startNextSet; }
+}
+
+function startNextSet(){
   T.mode = 'idle';
-  T.setNum++;
-  document.getElementById('timer-set-num') && (document.getElementById('timer-set-num').textContent = T.setNum);
   updateTimerMainBtn('start');
   document.getElementById('timer-popup-title').textContent = '⏱️ Satz ' + T.setNum + ' – Bereit!';
   showTimerPanel('settings');
+  // Reset Weiter button
+  const skipBtn = document.querySelector('[onclick="startNextSet()"]');
+  if(skipBtn){ skipBtn.textContent = '▶ Weiter'; skipBtn.setAttribute('onclick','skipRest()'); }
 }
 
 function saveTimerEntry(){
