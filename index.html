@@ -524,43 +524,48 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 
     <!-- ===== SET FINISHED / REST TIMER ===== -->
     <div id="timer-rest-display" style="display:none;">
-      <div style="text-align:center;margin-bottom:0.6rem;">
-        <div style="font-size:13px;font-weight:700;color:#27ae60;margin-bottom:2px;">✅ Satz <span id="rest-set-num">1</span> beendet!</div>
-      </div>
-      <div class="timer-phase-label" style="color:#f39c12;margin-bottom:0.4rem;" id="rest-phase-label">Pause</div>
-      <div style="text-align:center;margin-bottom:0.8rem;">
-        <div style="font-size:64px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
-        <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Sekunden</div>
+
+      <!-- Header: set info + pause countdown -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
+        <div style="font-size:13px;font-weight:700;color:#27ae60;">✅ Satz <span id="rest-set-num">1</span> beendet!</div>
+        <div style="text-align:right;">
+          <div style="font-size:36px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
+          <div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;" id="rest-phase-label">Sekunden Pause</div>
+        </div>
       </div>
 
       <!-- Weight + Reps edit -->
       <div style="background:#0f1929;border-radius:12px;padding:0.8rem;margin-bottom:0.8rem;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <!-- Weight -->
           <div>
-            <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:6px;">Gewicht (kg)</div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
-              <button type="button" onclick="adjustWeight(-2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">−</button>
-              <input type="number" id="rest-weight-input" step="0.5" style="width:60px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
-              <button type="button" onclick="adjustWeight(2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">+</button>
+            <div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:5px;">Gewicht (kg)</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:5px;">
+              <button type="button" onclick="adjustWeight(-2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:38px;height:38px;font-size:18px;cursor:pointer;font-weight:700;">−</button>
+              <input type="number" id="rest-weight-input" step="0.5" style="width:62px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
+              <button type="button" onclick="adjustWeight(2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:38px;height:38px;font-size:18px;cursor:pointer;font-weight:700;">+</button>
             </div>
           </div>
-          <!-- Reps -->
           <div>
-            <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:6px;">Wiederholungen</div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
-              <button type="button" onclick="adjustReps(-1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">−</button>
-              <input type="number" id="rest-reps-input" style="width:60px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
-              <button type="button" onclick="adjustReps(1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">+</button>
+            <div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:5px;">Wiederholungen</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:5px;">
+              <button type="button" onclick="adjustReps(-1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:38px;height:38px;font-size:18px;cursor:pointer;font-weight:700;">−</button>
+              <input type="number" id="rest-reps-input" style="width:62px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
+              <button type="button" onclick="adjustReps(1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:38px;height:38px;font-size:18px;cursor:pointer;font-weight:700;">+</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Save + Skip buttons -->
-      <div style="display:flex;gap:8px;margin-bottom:0.5rem;">
-        <button id="apply-rep-btn" class="timer-btn" onclick="saveTimerEntry()" style="flex:2;background:#27ae60;color:#fff;font-size:14px;font-weight:700;padding:13px;">💾 Speichern</button>
-        <button class="timer-btn" onclick="skipRest()" style="flex:1;background:#f39c12;color:#fff;font-size:13px;padding:13px;">▶ Weiter</button>
+      <!-- Action buttons: Save + Skip in one row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button id="apply-rep-btn" type="button" onclick="saveTimerEntry()"
+          style="background:#27ae60;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">
+          💾 Speichern
+        </button>
+        <button id="skip-rest-btn" type="button" onclick="skipRest()"
+          style="background:#f39c12;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">
+          ▶ Weiter
+        </button>
       </div>
     </div>
 
@@ -1735,11 +1740,8 @@ function startRestInterval(){
       T.mode='idle';
       updateTimerMainBtn('start');
       document.getElementById('timer-popup-title').textContent='⏱️ Satz '+T.setNum+' – Bereit!';
-      document.getElementById('rest-phase-label').textContent='Pause beendet – Starten!';
+      document.getElementById('rest-phase-label').textContent='Pause beendet!';
       document.getElementById('rest-seconds').textContent='';
-      // Reset skip button
-      const _skipBtn = document.querySelector('[onclick="startNextSet()"]');
-      if(_skipBtn){ _skipBtn.textContent='▶ Weiter'; _skipBtn.setAttribute('onclick','skipRest()'); }
     }
   },1000);
 }
@@ -1795,23 +1797,14 @@ function adjustWeight(delta){
 }
 
 function skipRest(){
-  // Stop rest timer - stay in rest display, user taps Start for next set
   clearInterval(T.interval);
-  document.getElementById('rest-seconds').textContent = '0';
-  document.getElementById('rest-phase-label').textContent = 'Pause beendet';
-  // Change Weiter button to Start
-  const skipBtn = document.querySelector('[onclick="skipRest()"]');
-  if(skipBtn){ skipBtn.textContent = '▶ Nächster Satz'; skipBtn.onclick = startNextSet; }
-}
-
-function startNextSet(){
   T.mode = 'idle';
+  T.setNum++;
+  document.getElementById('rest-set-num') && (document.getElementById('rest-set-num').textContent = T.setNum);
+  document.getElementById('timer-set-num') && (document.getElementById('timer-set-num').textContent = T.setNum);
   updateTimerMainBtn('start');
   document.getElementById('timer-popup-title').textContent = '⏱️ Satz ' + T.setNum + ' – Bereit!';
   showTimerPanel('settings');
-  // Reset Weiter button
-  const skipBtn = document.querySelector('[onclick="startNextSet()"]');
-  if(skipBtn){ skipBtn.textContent = '▶ Weiter'; skipBtn.setAttribute('onclick','skipRest()'); }
 }
 
 function saveTimerEntry(){
@@ -1860,6 +1853,23 @@ function saveTimerEntry(){
   if(btn){ btn.textContent = '✓ Gespeichert!'; btn.style.background = '#1a5c2a';
     setTimeout(()=>{ btn.textContent='💾 Speichern'; btn.style.background='#27ae60'; }, 1800); }
   renderTodayPreview();
+
+  // Check if all work sets completed -> auto-close timer
+  const _ph = getPhase(state.phase);
+  const _totalWorkSets = parseInt((_ph.saetze||'3').toString().split('–')[1] || (_ph.saetze||'3').toString().split('-')[1] || _ph.saetze) || 3;
+  const _wDone = parseInt(getPhase(state.phase).warmup)||1;
+  const _workSetsDone = T.setNum - _wDone; // sets saved so far excluding warmup
+  // Count actual work entries saved today for this exercise
+  const _todayWorkEntries = state.entries.filter(e =>
+    e.exercise === exercise && e.date === document.getElementById('date').value && e.setNum >= 1
+  ).length;
+  if(_todayWorkEntries >= _totalWorkSets){
+    setTimeout(()=>{
+      if(confirm('✅ Alle ' + _totalWorkSets + ' Arbeitssätze abgeschlossen!\nTraining für diese Übung beendet.')){
+        closeTimer();
+      }
+    }, 500);
+  }
 }
 
 // Legacy - keep for compatibility
