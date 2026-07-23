@@ -517,28 +517,48 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <div id="shake-status" style="text-align:center;font-size:11px;color:#445;margin-bottom:0.3rem;height:16px;"></div>
     </div>
 
+
     <!-- ===== SET FINISHED / REST TIMER ===== -->
     <div id="timer-rest-display" style="display:none;">
+      <div style="text-align:center;margin-bottom:0.6rem;">
+        <div style="font-size:13px;font-weight:700;color:#27ae60;margin-bottom:2px;">✅ Satz <span id="rest-set-num">1</span> beendet!</div>
+      </div>
+      <div class="timer-phase-label" style="color:#f39c12;margin-bottom:0.4rem;" id="rest-phase-label">Pause</div>
       <div style="text-align:center;margin-bottom:0.8rem;">
-        <div style="font-size:13px;font-weight:700;color:#27ae60;margin-bottom:4px;">✅ Satz beendet!</div>
-        <div style="font-size:22px;font-weight:700;color:#fff;" id="rest-reps-result">– Wiederholungen</div>
+        <div style="font-size:64px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
+        <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Sekunden</div>
       </div>
-      <div class="timer-phase-label" style="color:#f39c12;margin-bottom:0.5rem;" id="rest-phase-label">Pause</div>
-      <div style="text-align:center;margin-bottom:1rem;">
-        <div style="font-size:72px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
-        <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Sekunden</div>
-      </div>
-      <div style="margin-bottom:0.8rem;">
-        <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:6px;">Wiederholungen korrigieren</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
-          <button type="button" onclick="adjustReps(-1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:8px;width:44px;height:44px;font-size:22px;cursor:pointer;font-weight:700;">−</button>
-          <input type="number" id="rest-reps-input" style="width:70px;text-align:center;font-size:28px;font-weight:800;color:#fff;background:#0f1929;border:2px solid #2a3a5a;border-radius:10px;padding:6px;-moz-appearance:textfield;" oninput="T.repsDone=parseInt(this.value)||0">
-          <button type="button" onclick="adjustReps(1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:8px;width:44px;height:44px;font-size:22px;cursor:pointer;font-weight:700;">+</button>
+
+      <!-- Weight + Reps edit -->
+      <div style="background:#0f1929;border-radius:12px;padding:0.8rem;margin-bottom:0.8rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <!-- Weight -->
+          <div>
+            <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:6px;">Gewicht (kg)</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+              <button type="button" onclick="adjustWeight(-2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">−</button>
+              <input type="number" id="rest-weight-input" step="0.5" style="width:60px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
+              <button type="button" onclick="adjustWeight(2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">+</button>
+            </div>
+          </div>
+          <!-- Reps -->
+          <div>
+            <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:6px;">Wiederholungen</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+              <button type="button" onclick="adjustReps(-1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">−</button>
+              <input type="number" id="rest-reps-input" style="width:60px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
+              <button type="button" onclick="adjustReps(1)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer;font-weight:700;">+</button>
+            </div>
+          </div>
         </div>
       </div>
-      <button id="apply-rep-btn" class="timer-btn" onclick="applyRepCount()" style="background:#185FA5;color:#fff;margin-bottom:0.5rem;font-size:13px;">↑ Wdh. & Gewicht übernehmen</button>
-    </div>
 
+      <!-- Save + Skip buttons -->
+      <div style="display:flex;gap:8px;margin-bottom:0.5rem;">
+        <button id="apply-rep-btn" class="timer-btn" onclick="saveTimerEntry()" style="flex:2;background:#27ae60;color:#fff;font-size:14px;font-weight:700;padding:13px;">💾 Speichern</button>
+        <button class="timer-btn" onclick="skipRest()" style="flex:1;background:#f39c12;color:#fff;font-size:13px;padding:13px;">▶ Weiter</button>
+      </div>
+    </div>
 
     <!-- ===== CONTROLS ===== -->
     <!-- Big stop button – shown during set -->
@@ -1665,11 +1685,13 @@ function timerStopSet(){
   const _wN2 = parseInt(getPhase(state.phase).warmup)||1;
   const _isWS = (T.setNum <= _wN2);
   document.getElementById('timer-popup-title').textContent = _isWS ? '⏱️ Aufwärm-Pause' : '⏱️ Satz-Pause';
-  document.getElementById('rest-reps-result').textContent=T.repsDone+' Wiederholungen';
-  // Populate editable reps input
+  document.getElementById('rest-set-num') && (document.getElementById('rest-set-num').textContent = T.setNum);
+  // Populate editable inputs with current weight from form and timer rep count
   const _repsInput = document.getElementById('rest-reps-input');
   if(_repsInput) _repsInput.value = T.repsDone;
-  // Hide "Wdh übernehmen" button during warmup sets
+  const _weightInput = document.getElementById('rest-weight-input');
+  if(_weightInput) _weightInput.value = document.getElementById('weight').value || '';
+  // Hide save button during warmup sets
   const _applyBtn = document.getElementById('apply-rep-btn');
   if(_applyBtn){
     const _wc = parseInt(getPhase(state.phase).warmup)||1;
@@ -1697,8 +1719,8 @@ function startRestInterval(){
       clearInterval(T.interval);
       playBeep();
       T.setNum++;
-      T.isWarmup = false; // after warmup, revert to normal
-      document.getElementById('timer-set-num').textContent = T.setNum;
+      T.isWarmup = false;
+      document.getElementById('timer-set-num') && (document.getElementById('timer-set-num').textContent = T.setNum);
       T.mode='idle';
       updateTimerMainBtn('start');
       document.getElementById('timer-popup-title').textContent='⏱️ Satz '+T.setNum+' – Bereit!';
@@ -1745,23 +1767,79 @@ function timerReset(){
 // ---- APPLY REP COUNT TO FORM ----
 function adjustReps(delta){
   const input = document.getElementById('rest-reps-input');
-  const current = parseInt(input.value)||0;
-  const newVal = Math.max(0, current + delta);
+  const newVal = Math.max(0, (parseInt(input.value)||0) + delta);
   input.value = newVal;
   T.repsDone = newVal;
-  document.getElementById('rest-reps-result').textContent = newVal + ' Wiederholungen';
 }
 
-function applyRepCount(){
-  // Read from editable input (may have been corrected)
-  const input = document.getElementById('rest-reps-input');
-  const reps = input ? (parseInt(input.value)||T.repsDone) : T.repsDone;
-  document.getElementById('reps').value = reps;
-  document.getElementById('sets').value = T.setNum;
-  const btn = event.target;
-  btn.textContent = '✓ Übernommen!';
-  setTimeout(()=>btn.textContent='↑ Wdh. & Gewicht übernehmen', 1800);
+function adjustWeight(delta){
+  const input = document.getElementById('rest-weight-input');
+  const newVal = Math.max(0, Math.round(((parseFloat(input.value)||0) + delta) * 2) / 2);
+  input.value = newVal;
 }
+
+function skipRest(){
+  // Stop rest timer and start next set immediately
+  clearInterval(T.interval);
+  T.mode = 'idle';
+  T.setNum++;
+  document.getElementById('timer-set-num') && (document.getElementById('timer-set-num').textContent = T.setNum);
+  updateTimerMainBtn('start');
+  document.getElementById('timer-popup-title').textContent = '⏱️ Satz ' + T.setNum + ' – Bereit!';
+  showTimerPanel('settings');
+}
+
+function saveTimerEntry(){
+  const exercise = document.getElementById('exercise')?.value;
+  if(!exercise){ alert('Keine Übung ausgewählt!'); return; }
+  const repsInput = document.getElementById('rest-reps-input');
+  const weightInput = document.getElementById('rest-weight-input');
+  const reps   = parseInt(repsInput?.value) || T.repsDone;
+  const weight = parseFloat(weightInput?.value) || parseFloat(document.getElementById('weight')?.value) || 0;
+  if(!reps){ alert('Bitte Wiederholungen eingeben!'); return; }
+
+  // Check warmup
+  const _wCount = parseInt(getPhase(state.phase).warmup)||1;
+  if(T.warmupDone < _wCount){
+    T.warmupDone++;
+    const _done = T.warmupDone >= _wCount;
+    if(_done){ T.setNum = 1; }
+    alert('Aufwärmsatz ' + T.warmupDone + '/' + _wCount + ' abgeschlossen.' + (_done ? '\nArbeitssätze starten!' : ''));
+    // Update form weight for next set
+    if(weight) document.getElementById('weight').value = weight;
+    return;
+  }
+
+  const newPR = isNewPR(exercise, weight);
+  const entry = {
+    id: Date.now(),
+    date: document.getElementById('date').value,
+    exercise, weight, reps,
+    sets: T.setNum,
+    setNum: T.setNum,
+    phase: state.phase,
+    session: state.activeSession,
+    isPR: newPR
+  };
+  state.entries.push(entry);
+  state.entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+  saveData();
+  if(newPR) showPRToast();
+  renderHistory(); renderChart(); updateStats(); renderExerciseLibrary();
+  // Update main form weight field for next set
+  document.getElementById('weight').value = weight;
+  document.getElementById('reps').value = '';
+  document.getElementById('sets').value = T.setNum + 1;
+
+  const btn = document.getElementById('apply-rep-btn');
+  if(btn){ btn.textContent = '✓ Gespeichert!'; btn.style.background = '#1a5c2a';
+    setTimeout(()=>{ btn.textContent='💾 Speichern'; btn.style.background='#27ae60'; }, 1800); }
+  renderTodayPreview();
+}
+
+// Legacy - keep for compatibility
+function applyRepCount(){ saveTimerEntry(); }
+
 
 // ---- HELPERS ----
 function getPhaseSec(phase){
