@@ -902,15 +902,24 @@ function getLastEntry(exerciseName){
   return entries.sort((a,b)=>b.id-a.id)[0];
 }
 
-// Get best entry from PREVIOUS training day (reference for today's target)
+// Get Satz 1 entry from the most recent PREVIOUS training session
 function getPrevTrainingEntry(exerciseName){
   const today = document.getElementById('date')?.value || new Date().toISOString().split('T')[0];
-  const entries = state.entries
+  // Try previous day first
+  let entries = state.entries
     .filter(e => e.exercise===exerciseName && e.date < today)
     .sort((a,b) => b.id - a.id);
+  // If no previous day entries, use entries from earlier in today but before this session
+  if(!entries.length){
+    entries = state.entries
+      .filter(e => e.exercise===exerciseName && e.date === today)
+      .sort((a,b) => a.id - b.id); // oldest first
+  }
   if(!entries.length) return null;
+  // Get the last training date we found
   const lastDate = entries[0].date;
   const lastDayEntries = entries.filter(e => e.date === lastDate);
+  // Return entry with most reps (typically Satz 1 or best set)
   return lastDayEntries.reduce((best, e) => e.reps > best.reps ? e : best, lastDayEntries[0]);
 }
 
@@ -1461,17 +1470,7 @@ function openTimer(){
   T.warmupRestTotal = ts.warmupRest ?? 30;
   const _warmupEl = document.getElementById('t-warmup-rest');
   if(_warmupEl) _warmupEl.value = T.warmupRestTotal;
-  // Show last weight/reps for selected exercise
-  // _ex already declared above
-  if(_ex){
-    const _last = getLastEntry(_ex);
-    document.getElementById('timer-last-weight').textContent = _last ? (_last.weight>0?_last.weight+'kg':'KG') : '–';
-    document.getElementById('timer-last-reps').textContent = _last ? _last.reps+' Wdh' : '–';
-    const _prevRef = getPrevTrainingEntry(_ex);
-
-    const _prevTxt = _prevRef ? 'Letztes Training Satz 1: '+(_prevRef.weight>0?_prevRef.weight+'kg':'KG')+' × '+_prevRef.reps+' Wdh' : '';
-    const _refEl = document.getElementById('timer-prev-ref'); if(_refEl) _refEl.textContent = _prevTxt;
-  }
+  // timer-last-info is updated when set starts (startSet/startPrep)
   document.getElementById('timer-set-num').textContent = T.setNum;
   renderPhaseOrderSelector();
   setVoice(T.voiceEnabled);
