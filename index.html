@@ -519,6 +519,8 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 
       <!-- Shake status -->
       <div id="shake-status" style="text-align:center;font-size:11px;color:#445;margin-bottom:0.3rem;height:16px;"></div>
+      <!-- Previous training reference -->
+      <div id="timer-prev-ref" style="text-align:center;font-size:11px;color:#7eb8e8;margin-bottom:0.3rem;min-height:16px;opacity:0.85;"></div>
     </div>
 
 
@@ -1462,10 +1464,13 @@ function openTimer(){
   // Show last weight/reps for selected exercise
   // _ex already declared above
   if(_ex){
-    const _last = getPrevTrainingEntry(_ex);
-    const _label = _last ? 'Letztes Training:' : 'Kein Voreintrag';
+    const _last = getLastEntry(_ex);
     document.getElementById('timer-last-weight').textContent = _last ? (_last.weight>0?_last.weight+'kg':'KG') : '–';
-    document.getElementById('timer-last-reps').textContent   = _last ? _last.reps+' Wdh' : '–';
+    document.getElementById('timer-last-reps').textContent = _last ? _last.reps+' Wdh' : '–';
+    const _prevRef = getPrevTrainingEntry(_ex);
+
+    const _prevTxt = _prevRef ? 'Letztes Training Satz 1: '+(_prevRef.weight>0?_prevRef.weight+'kg':'KG')+' × '+_prevRef.reps+' Wdh' : '';
+    const _refEl = document.getElementById('timer-prev-ref'); if(_refEl) _refEl.textContent = _prevTxt;
   }
   document.getElementById('timer-set-num').textContent = T.setNum;
   renderPhaseOrderSelector();
@@ -1620,10 +1625,13 @@ function startSet(){
   // Show last entry info
   const _ex = document.getElementById('exercise')?.value;
   if(_ex){
-    const _last = getPrevTrainingEntry(_ex);
-    const _label = _last ? 'Letztes Training:' : 'Kein Voreintrag';
+    const _last = getLastEntry(_ex);
     document.getElementById('timer-last-weight').textContent = _last ? (_last.weight>0?_last.weight+'kg':'KG') : '–';
-    document.getElementById('timer-last-reps').textContent   = _last ? _last.reps+' Wdh' : '–';
+    document.getElementById('timer-last-reps').textContent = _last ? _last.reps+' Wdh' : '–';
+    const _prevRef = getPrevTrainingEntry(_ex);
+
+    const _prevTxt = _prevRef ? 'Letztes Training Satz 1: '+(_prevRef.weight>0?_prevRef.weight+'kg':'KG')+' × '+_prevRef.reps+' Wdh' : '';
+    const _refEl = document.getElementById('timer-prev-ref'); if(_refEl) _refEl.textContent = _prevTxt;
   }
   startSetPhase();
 }
