@@ -484,8 +484,8 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
         <div style="font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Sekunden</div>
       </div>
       <div id="prep-last-info" style="background:#0f1929;border-radius:10px;padding:0.6rem;display:flex;justify-content:space-around;text-align:center;">
-        <div><div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;">Letztes Gewicht</div><div style="font-size:18px;font-weight:700;color:#fff;" id="prep-last-weight">–</div></div>
-        <div><div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;">Letzte Wdh.</div><div style="font-size:18px;font-weight:700;color:#fff;" id="prep-last-reps">–</div></div>
+        <div><div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;">Training vorher: Gewicht</div><div style="font-size:18px;font-weight:700;color:#fff;" id="prep-last-weight">–</div></div>
+        <div><div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;">Training vorher: Wdh.</div><div style="font-size:18px;font-weight:700;color:#fff;" id="prep-last-reps">–</div></div>
       </div>
     </div>
 
@@ -499,11 +499,11 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <!-- Last weight/reps info -->
       <div id="timer-last-info" style="background:#0f1929;border-radius:10px;padding:0.6rem 1rem;margin-bottom:0.6rem;display:flex;justify-content:space-between;align-items:center;">
         <div style="text-align:center;">
-          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Letztes Gewicht</div>
+          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Vorheriges Training</div>
           <div style="font-size:20px;font-weight:700;color:#fff;" id="timer-last-weight">–</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Letzte Wdh.</div>
+          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Wdh. (Ziel heute)</div>
           <div style="font-size:20px;font-weight:700;color:#fff;" id="timer-last-reps">–</div>
         </div>
         <div style="text-align:center;">
@@ -527,7 +527,10 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 
       <!-- Header: set info + pause countdown -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
-        <div style="font-size:13px;font-weight:700;color:#27ae60;">✅ Satz <span id="rest-set-num">1</span> beendet!</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#27ae60;">✅ Satz <span id="rest-set-num">1</span> beendet!</div>
+          <div id="rest-saved-stats" style="font-size:12px;color:#7eb8e8;margin-top:3px;"></div>
+        </div>
         <div style="text-align:right;">
           <div style="font-size:36px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
           <div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;" id="rest-phase-label">Sekunden Pause</div>
@@ -896,6 +899,19 @@ function getLastEntry(exerciseName){
   // Sort by id (timestamp) descending - most recent first, handles same-day entries correctly
   return entries.sort((a,b)=>b.id-a.id)[0];
 }
+
+// Get best entry from PREVIOUS training day (reference for today's target)
+function getPrevTrainingEntry(exerciseName){
+  const today = document.getElementById('date')?.value || new Date().toISOString().split('T')[0];
+  const entries = state.entries
+    .filter(e => e.exercise===exerciseName && e.date < today)
+    .sort((a,b) => b.id - a.id);
+  if(!entries.length) return null;
+  const lastDate = entries[0].date;
+  const lastDayEntries = entries.filter(e => e.date === lastDate);
+  return lastDayEntries.reduce((best, e) => e.reps > best.reps ? e : best, lastDayEntries[0]);
+}
+
 
 // ===================== QUICK SELECT =====================
 function renderQuickSelect(exercises){
@@ -1446,8 +1462,9 @@ function openTimer(){
   // Show last weight/reps for selected exercise
   // _ex already declared above
   if(_ex){
-    const _last = getLastEntry(_ex);
-    document.getElementById('timer-last-weight').textContent = _last ? _last.weight+'kg' : '–';
+    const _last = getPrevTrainingEntry(_ex);
+    const _label = _last ? 'Letztes Training:' : 'Kein Voreintrag';
+    document.getElementById('timer-last-weight').textContent = _last ? (_last.weight>0?_last.weight+'kg':'KG') : '–';
     document.getElementById('timer-last-reps').textContent   = _last ? _last.reps+' Wdh' : '–';
   }
   document.getElementById('timer-set-num').textContent = T.setNum;
@@ -1538,7 +1555,7 @@ function startPrep(){
   // Show last entry info
   const _prepEx = document.getElementById('exercise')?.value;
   if(_prepEx){
-    const _prepLast = getLastEntry(_prepEx);
+    const _prepLast = getPrevTrainingEntry(_prepEx);
     document.getElementById('prep-last-weight').textContent = _prepLast ? (_prepLast.weight>0?_prepLast.weight+'kg':'KG') : '–';
     document.getElementById('prep-last-reps').textContent   = _prepLast ? _prepLast.reps+' Wdh' : '–';
   }
@@ -1603,8 +1620,9 @@ function startSet(){
   // Show last entry info
   const _ex = document.getElementById('exercise')?.value;
   if(_ex){
-    const _last = getLastEntry(_ex);
-    document.getElementById('timer-last-weight').textContent = _last ? _last.weight+'kg' : '–';
+    const _last = getPrevTrainingEntry(_ex);
+    const _label = _last ? 'Letztes Training:' : 'Kein Voreintrag';
+    document.getElementById('timer-last-weight').textContent = _last ? (_last.weight>0?_last.weight+'kg':'KG') : '–';
     document.getElementById('timer-last-reps').textContent   = _last ? _last.reps+' Wdh' : '–';
   }
   startSetPhase();
@@ -1702,6 +1720,7 @@ function timerStopSet(){
   const _isWS = (T.setNum <= _wN2);
   document.getElementById('timer-popup-title').textContent = _isWS ? '⏱️ Aufwärm-Pause' : '⏱️ Satz-Pause';
   document.getElementById('rest-set-num') && (document.getElementById('rest-set-num').textContent = T.setNum);
+  const _sEl = document.getElementById('rest-saved-stats'); if(_sEl) _sEl.innerHTML='';
   // Populate editable inputs with current weight from form and timer rep count
   const _repsInput = document.getElementById('rest-reps-input');
   if(_repsInput) _repsInput.value = T.repsDone;
@@ -1852,6 +1871,12 @@ function saveTimerEntry(){
   const btn = document.getElementById('apply-rep-btn');
   if(btn){ btn.textContent = '✓ Gespeichert!'; btn.style.background = '#1a5c2a';
     setTimeout(()=>{ btn.textContent='💾 Speichern'; btn.style.background='#27ae60'; }, 1800); }
+
+  // Show saved stats as motivation
+  const _statsEl = document.getElementById('rest-saved-stats');
+  if(_statsEl) _statsEl.innerHTML =
+    `<span style="color:#27ae60;font-weight:700;">💪 ${weight}kg × ${reps} Wdh. gespeichert</span>`;
+
   renderTodayPreview();
 
   // Check if all work sets completed -> auto-close timer
