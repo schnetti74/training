@@ -185,6 +185,17 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 .timer-order-chip.sel{border-color:#fff;}
 .timer-close-btn{position:absolute;top:1rem;right:1rem;background:none;border:none;color:#7eb8e8;font-size:22px;cursor:pointer;line-height:1;}
 .timer-finish-msg{text-align:center;padding:1rem 0;font-size:16px;font-weight:700;color:#27ae60;display:none;}
+#pause-banner{position:sticky;top:8px;z-index:50;}
+.pause-banner{background:linear-gradient(135deg,#e67e22 0%,#f39c12 100%);color:#fff;border-radius:12px;padding:0.8rem 1rem;margin-bottom:1rem;box-shadow:0 3px 10px rgba(230,126,34,0.35);}
+.pb-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;opacity:0.95;}
+.pb-time{font-size:38px;font-weight:800;line-height:1.1;}
+.pb-hint{font-size:11px;opacity:0.9;}
+.pb-btn{background:rgba(255,255,255,0.95);color:#b9600a;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;}
+.pb-btn.ghost{background:rgba(255,255,255,0.2);color:#fff;}
+.sum-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eef1f5;font-size:13px;}
+.sum-row:last-child{border-bottom:none;}
+.sum-good{color:#27ae60;font-weight:700;}
+.sum-bad{color:#e74c3c;font-weight:700;}
 </style>
 </head>
 <body>
@@ -211,9 +222,14 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <div class="card-title">Welche Einheit heute?</div>
       <div id="session-selector"></div>
     </div>
+    <div id="pause-banner"></div>
+    <div class="card" id="cardio-card">
+      <div class="card-title">🔥 Aufwärmen Kardio</div>
+      <div id="cardio-body"></div>
+    </div>
     <div id="today-plan-preview"></div>
     <div class="card">
-      <div class="card-title">Neuer Eintrag</div>
+      <div class="card-title">Arbeitssatz speichern</div>
       <form onsubmit="addEntry(event)">
         <div class="form-group">
           <label>Datum</label>
@@ -237,10 +253,6 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
             <label>Wdh.</label>
             <input type="number" id="reps" placeholder="z.B. 10" required>
           </div>
-        </div>
-        <div class="form-group">
-          <label>Satz Nr.</label>
-          <input type="number" id="sets" value="1" min="1" required>
         </div>
         <button type="submit" class="btn btn-primary">✓ Speichern</button>
       </form>
@@ -300,8 +312,9 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <div style="display:flex;gap:6px;margin-bottom:0.8rem;">
         <button id="chart-tab-weight" class="btn btn-sm btn-primary" onclick="setChartMode('weight')">Gewicht (kg)</button>
         <button id="chart-tab-volume" class="btn btn-sm" onclick="setChartMode('volume')">Volumen</button>
+        <button id="chart-tab-pause" class="btn btn-sm" onclick="setChartMode('pause')">Pausen (Ø)</button>
       </div>
-      <div class="form-group" style="margin-bottom:0.6rem;">
+      <div class="form-group" id="chart-ex-wrap" style="margin-bottom:0.6rem;">
         <label>Übung auswählen</label>
         <select id="chart-exercise-select" onchange="renderChart()">
           <option value="">Alle Übungen (Übersicht)</option>
@@ -311,6 +324,8 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <div id="chart-legend" style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:6px;"></div>
       <div id="chart-empty" style="display:none;text-align:center;padding:2rem;color:#aaa;font-size:13px;">Noch keine Daten für diese Ansicht</div>
     </div>
+    <div id="pause-summary"></div>
+    <div id="cardio-summary"></div>
     <!-- Phase legend -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0.8rem;">
       <span style="font-size:11px;color:#666;align-self:center;">Phasen:</span>
@@ -438,18 +453,6 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
           <input type="number" id="t-pause" oninput="saveTimerSettings()" value="1" min="0" max="10">
           <span style="color:#556;font-size:11px;">Sek</span>
         </div>
-        <div class="timer-phase-row" style="margin-top:4px;border-top:1px solid #1e2e4a;padding-top:8px;">
-          <div class="timer-phase-color" style="background:#27ae60;"></div>
-          <label>Satz-Pause</label>
-          <input type="number" id="t-rest" oninput="saveTimerSettings()" value="90" min="0" max="300">
-          <span style="color:#556;font-size:11px;">Sek</span>
-        </div>
-        <div class="timer-phase-row" style="margin-top:4px;">
-          <div class="timer-phase-color" style="background:#95a5a6;"></div>
-          <label>Aufwärm-Pause</label>
-          <input type="number" id="t-warmup-rest" oninput="saveTimerSettings()" value="30" min="0" max="120">
-          <span style="color:#556;font-size:11px;">Sek</span>
-        </div>
       </div>
       <div class="timer-order-row" style="margin-top:1rem;">
         <label>Reihenfolge</label>
@@ -507,8 +510,8 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
           <div style="font-size:20px;font-weight:700;color:#fff;" id="timer-last-reps">–</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Satz</div>
-          <div style="font-size:20px;font-weight:700;color:#fff;" id="timer-set-num">1</div>
+          <div style="font-size:11px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;">Übung</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;max-width:110px;" id="timer-set-num">–</div>
         </div>
       </div>
       <!-- Permanent rep counter -->
@@ -524,22 +527,12 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
     </div>
 
 
-    <!-- ===== SET FINISHED / REST TIMER ===== -->
+    <!-- ===== SET FINISHED / SAVE ===== -->
     <div id="timer-rest-display" style="display:none;">
-
-      <!-- Header: set info + pause countdown -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#27ae60;">✅ Satz <span id="rest-set-num">1</span> beendet!</div>
-          <div id="rest-saved-stats" style="font-size:12px;color:#7eb8e8;margin-top:3px;"></div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:36px;font-weight:800;color:#f39c12;line-height:1;" id="rest-seconds">90</div>
-          <div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;letter-spacing:1px;" id="rest-phase-label">Sekunden Pause</div>
-        </div>
+      <div style="margin-bottom:0.7rem;">
+        <div style="font-size:15px;font-weight:700;color:#27ae60;">✅ Arbeitssatz beendet!</div>
+        <div id="rest-saved-stats" style="font-size:12px;color:#7eb8e8;margin-top:3px;">Gewicht und Wiederholungen prüfen, dann speichern.</div>
       </div>
-
-      <!-- Weight + Reps edit -->
       <div style="background:#0f1929;border-radius:12px;padding:0.8rem;margin-bottom:0.8rem;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div>
@@ -560,16 +553,14 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
           </div>
         </div>
       </div>
-
-      <!-- Action buttons: Save + Skip in one row -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
         <button id="apply-rep-btn" type="button" onclick="saveTimerEntry()"
           style="background:#27ae60;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">
-          💾 Speichern
+          💾 Speichern &amp; Pause starten
         </button>
-        <button id="skip-rest-btn" type="button" onclick="skipRest()"
-          style="background:#f39c12;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">
-          ▶ Weiter
+        <button id="skip-rest-btn" type="button" onclick="discardTimerSet()"
+          style="background:#2a3a5a;color:#7eb8e8;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;">
+          ✕ Verwerfen
         </button>
       </div>
     </div>
@@ -596,10 +587,12 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 <script>
 // ===================== DEFAULTS =====================
 const DEFAULT_PLAN = {
-  A:{label:"Einheit A",focus:"Unterkörper + Rücken",exercises:["Kniebeuge","Kreuzheben","Lat-Ziehen"]},
-  B:{label:"Einheit B",focus:"Oberkörper + Core",exercises:["Bankdrücken","Schulterdrücken","Trizeps-Drücken"]},
-  C:{label:"Einheit C",focus:"Kompletter Körper",exercises:["Rudern","Beinpresse","Brustfliegen"]}
+  A:{label:"Einheit A",focus:"Unterkörper + Rücken",exercises:["Kniebeuge","Kreuzheben","Lat-Ziehen"],cardio:{device:"Crosstrainer",minutes:5}},
+  B:{label:"Einheit B",focus:"Oberkörper + Core",exercises:["Bankdrücken","Schulterdrücken","Trizeps-Drücken"],cardio:{device:"Crosstrainer",minutes:5}},
+  C:{label:"Einheit C",focus:"Kompletter Körper",exercises:["Rudern","Beinpresse","Brustfliegen"],cardio:{device:"Crosstrainer",minutes:5}}
 };
+
+const DEFAULT_CARDIO_DEVICES = ['Laufband','Crosstrainer','Fahrrad-Ergometer','Rudergerät','Stepper'];
 
 const DEFAULT_EXERCISES = [
   {name:"Kniebeuge",note:""},
@@ -617,10 +610,10 @@ const DEFAULT_EXERCISES = [
 ];
 
 const PHASES = {
-  hypertrophie:{name:"Hypertrophie",subtitle:"Muskelaufbau",color:"hypertrophie",wdh:"8–12",saetze:"3–4",warmup:"1",intensity:"60–75% 1RM",pause:"60–90 Sek",tempo:"2-1-2",ziel:"Muskelmasse aufbauen durch mittelhohe Wiederholungen und moderate Gewichte.",tipp:"Letzte 1–2 Wdh. sollten anstrengend sein (RPE 7–8). Gewicht erhöhen sobald alle Wdh. leicht fallen."},
-  maximalkraft:{name:"Maximalkraft",subtitle:"Kraft & Nervensystem",color:"maximalkraft",wdh:"3–5",saetze:"4–5",warmup:"2",intensity:"85–90% 1RM",pause:"2–3 Min",tempo:"2-0-1",ziel:"Neuromuskuläre Koordination verbessern. Das Nervensystem lernt, mehr Muskelfasern gleichzeitig zu aktivieren.",tipp:"Sehr schwere Gewichte – Technik immer vor Gewicht! Aufwärmen sehr wichtig in dieser Phase."},
-  kraftausdauer:{name:"Kraftausdauer",subtitle:"Kapillarisierung & Ausdauer",color:"kraftausdauer",wdh:"15–20",saetze:"2–3",warmup:"1",intensity:"50–65% 1RM",pause:"45–60 Sek",tempo:"2-1-2",ziel:"Bildung neuer Kapillaren verbessert Nährstoffversorgung und Regeneration.",tipp:"Kurze Pausen einhalten – das erzeugt den Ausdauerreiz. Gefühl des Brennens ist normal und gewünscht."},
-  deload:{name:"Deload-Woche",subtitle:"Aktive Erholung",color:"deload",wdh:"10",saetze:"2",warmup:"0",intensity:"50% des letzten Gewichts",pause:"60 Sek",tempo:"2-1-2",ziel:"Gezielte Erholungswoche: Gelenke, Sehnen und Nervensystem regenerieren. Das Gewicht soll sich leicht anfühlen.",tipp:"Nur 2 Sätze pro Übung. Gewicht halbieren. Kein Ego – diese Woche ist Investition in die nächste Phase!"}
+  hypertrophie:{name:"Hypertrophie",subtitle:"Muskelaufbau",color:"hypertrophie",wdh:"8–12",saetze:"1",warmup:"1–2",intensity:"60–75% 1RM",pause:"60–90 Sek",tempo:"2-1-2",ziel:"Muskelmasse aufbauen durch mittelhohe Wiederholungen und moderate Gewichte.",tipp:"Letzte 1–2 Wdh. sollten anstrengend sein (RPE 7–8). Gewicht erhöhen sobald alle Wdh. leicht fallen."},
+  maximalkraft:{name:"Maximalkraft",subtitle:"Kraft & Nervensystem",color:"maximalkraft",wdh:"3–5",saetze:"1",warmup:"1–2",intensity:"85–90% 1RM",pause:"2–3 Min",tempo:"2-0-1",ziel:"Neuromuskuläre Koordination verbessern. Das Nervensystem lernt, mehr Muskelfasern gleichzeitig zu aktivieren.",tipp:"Sehr schwere Gewichte – Technik immer vor Gewicht! Aufwärmen sehr wichtig in dieser Phase."},
+  kraftausdauer:{name:"Kraftausdauer",subtitle:"Kapillarisierung & Ausdauer",color:"kraftausdauer",wdh:"15–20",saetze:"1",warmup:"1–2",intensity:"50–65% 1RM",pause:"45–60 Sek",tempo:"2-1-2",ziel:"Bildung neuer Kapillaren verbessert Nährstoffversorgung und Regeneration.",tipp:"Kurze Pausen einhalten – das erzeugt den Ausdauerreiz. Gefühl des Brennens ist normal und gewünscht."},
+  deload:{name:"Deload-Woche",subtitle:"Aktive Erholung",color:"deload",wdh:"10",saetze:"1",warmup:"1",intensity:"50% des letzten Gewichts",pause:"60 Sek",tempo:"2-1-2",ziel:"Gezielte Erholungswoche: Gelenke, Sehnen und Nervensystem regenerieren. Das Gewicht soll sich leicht anfühlen.",tipp:"Nur 1 Arbeitssatz pro Übung. Gewicht halbieren. Kein Ego – diese Woche ist Investition in die nächste Phase!"}
 };
 
 // ===================== STATE =====================
@@ -633,10 +626,15 @@ let state = {
   activeSession:"A",
   phaseParams:{},
   timerSettings:{
-    prep:5, positiv:2, oben:1, negativ:2, pause:1, rest:90, warmupRest:30,
+    prep:5, positiv:2, oben:1, negativ:2, pause:1,
     order:['positiv','oben','negativ','pause'],
     voiceEnabled:true
-  }
+  },
+  cardioDevices:[...DEFAULT_CARDIO_DEVICES],
+  cardioLog:[],      // {id,date,device,plannedSec,actualSec,session}
+  cardioRun:null,    // laufendes Kardio-Aufwärmen
+  pauses:[],         // {id,date,fromId,fromExercise,toExercise,seconds,session}
+  pauseRun:null      // laufende Pausenstoppuhr
 };
 
 let editingExIndex = null;
@@ -655,10 +653,27 @@ function loadData(){
       state.activeSession = d.activeSession||"A";
       state.phaseParams = d.phaseParams||{};
       if(d.timerSettings) state.timerSettings = d.timerSettings;
+      state.cardioDevices = (d.cardioDevices&&d.cardioDevices.length)?d.cardioDevices:[...DEFAULT_CARDIO_DEVICES];
+      state.cardioLog = d.cardioLog||[];
+      state.pauses = d.pauses||[];
+      state.pauseRun = d.pauseRun||null;
+      state.cardioRun = d.cardioRun||null;
     }
   }catch(e){}
+  ensurePlanCardio();
+  // veraltete laufende Uhren verwerfen (App war lange zu)
+  if(state.pauseRun && Date.now()-state.pauseRun.start > 30*60*1000) state.pauseRun = null;
+  if(state.cardioRun && Date.now()-state.cardioRun.start > (state.cardioRun.plannedSec+600)*1000) state.cardioRun = null;
   init();
 }
+
+function ensurePlanCardio(){
+  Object.keys(state.plan).forEach(k=>{
+    if(!state.plan[k].cardio) state.plan[k].cardio = {device:'Crosstrainer', minutes:5};
+  });
+}
+
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
 
 function saveData(){
   localStorage.setItem('tt_v3',JSON.stringify(state));
@@ -679,8 +694,10 @@ function init(){
   renderPhaseTab();
   renderHistory();
   updateStats();
-  // Start at Satz 1
-  document.getElementById('sets').value = 1;
+  renderPauseBanner();
+  renderCardio();
+  renderPauseSummary();
+  renderCardioSummary();
 }
 
 // ===================== TAB SWITCH =====================
@@ -844,6 +861,7 @@ function renderSessionSelector(){
 function setActiveSession(key){
   state.activeSession=key;
   saveData();
+  renderCardio();
   renderSessionSelector();
   renderTodayPreview();
   renderWeekPlan();
@@ -864,7 +882,7 @@ function renderTodayPreview(){
         <span class="phase-badge phase-${ph.color}">${ph.name}</span>
       </div>
       <div style="font-size:12px;color:#666;margin-bottom:8px;">
-        <strong>${ph.wdh} Wdh</strong> · <strong>${ph.saetze} Sätze</strong> + <strong>${ph.warmup||'1'} Aufwärm</strong> · Pause ${ph.pause} · Tempo ${ph.tempo}
+        <strong>${ph.wdh} Wdh</strong> · <strong>1 Arbeitssatz</strong> + <strong>${ph.warmup||'1–2'} Aufwärmsätze je Körperregion</strong> · Pause ${ph.pause} · Tempo ${ph.tempo}
         ${isDeload?'<br><span style="color:#7b1fa2;font-weight:600;">⚡ Gewicht halbieren gegenüber letzter Kraftausdauer-Phase</span>':''}
       </div>
       <ul class="ex-list">
@@ -945,6 +963,7 @@ function renderQuickSelect(exercises){
           } else {
             subText=last?`Zuletzt: ${last.weight>0?last.weight+'kg':'KG'} × ${last.reps}`:'Neu';
           }
+          if(state.entries.some(en=>en.exercise===e && en.date===document.getElementById('date').value)) subText='✓ heute erledigt';
           return `<button type="button" class="qs-btn ${currentVal===e?'selected':''}" onclick="quickSelectExercise('${e.replace(/'/g,"\\'")}')">
             <div class="qs-btn-inner">
               <span class="qs-btn-name">${isPRlast&&!isDeload?'🏆 ':''}${e}</span>
@@ -958,9 +977,6 @@ function renderQuickSelect(exercises){
 
 function quickSelectExercise(name){
   checkUnsavedBeforeSwitch(name);
-  document.getElementById('sets').value = 1;
-  T.setNum = 1;
-  T.warmupDone = 0;
   document.getElementById('exercise').value=name;
   document.querySelectorAll('.qs-btn').forEach(b=>{
     b.classList.toggle('selected', b.querySelector('.qs-btn-name').textContent.replace('🏆 ','').trim()===name);
@@ -1006,7 +1022,7 @@ function renderWeekPlan(){
     <div class="current-phase-banner">
       <div class="cpb-label">Aktive Phase</div>
       <div class="cpb-name">${ph.name} – ${ph.subtitle}</div>
-      <div class="cpb-info">${ph.wdh} Wdh · ${ph.saetze} Sätze · Pause ${ph.pause} · Tempo ${ph.tempo}</div>
+      <div class="cpb-info">${ph.wdh} Wdh · 1 Arbeitssatz · Pause ${ph.pause} · Tempo ${ph.tempo}</div>
     </div>`;
   const icons={A:'🦵',B:'💪',C:'🏋️'};
   let html='';
@@ -1018,11 +1034,12 @@ function renderWeekPlan(){
         ${isActive?'<span style="font-size:11px;font-weight:700;color:#185FA5;">▶ AKTIV</span>':''}
       </div>
       <div class="day-focus">${day.focus}</div>
+      ${day.cardio&&day.cardio.device?`<div style="font-size:12px;font-weight:600;color:#e67e22;margin-bottom:0.5rem;">🔥 Aufwärmen: ${esc(day.cardio.device)} · ${day.cardio.minutes} Min</div>`:''}
       <ul class="ex-list">
         ${day.exercises.map(e=>`
           <li>
             <span class="ex-name">${e}</span>
-            <span class="ex-badge">${ph.wdh} Wdh · ${ph.saetze} Sätze · ${ph.pause}</span>
+            <span class="ex-badge">${ph.wdh} Wdh · 1 Arbeitssatz · ${ph.pause}</span>
           </li>`).join('')}
       </ul>
     </div>`;
@@ -1053,14 +1070,41 @@ function openEditPlan(){
         <textarea id="exlist-${key}" rows="4">${day.exercises.join('\n')}</textarea>
         <p class="hint">Übungsnamen aus der Bibliothek verwenden</p>
       </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>🔥 Kardio-Gerät</label>
+          <select id="cardiodev-${key}">
+            <option value="">– keins –</option>
+            ${(day.cardio&&day.cardio.device&&!state.cardioDevices.includes(day.cardio.device)?[...state.cardioDevices,day.cardio.device]:state.cardioDevices).map(d=>`<option value="${esc(d)}" ${day.cardio&&day.cardio.device===d?'selected':''}>${esc(d)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Minuten</label>
+          <input type="number" id="cardiomin-${key}" min="1" max="60" value="${(day.cardio&&day.cardio.minutes)||5}">
+        </div>
+      </div>
     </div>`;
   });
+  html+=`<div class="form-group" style="margin-top:0.5rem;">
+      <label>Kardio-Geräte (eine pro Zeile)</label>
+      <textarea id="plan-cardio-devices" rows="5">${state.cardioDevices.map(esc).join('\n')}</textarea>
+      <p class="hint">Diese Liste erscheint in der Geräteauswahl. Neue Geräte kannst du auch direkt im Eintrag-Tab anlegen.</p>
+    </div>`;
   document.getElementById('modal-plan-content').innerHTML=html;
   document.getElementById('modal-plan').classList.add('open');
 }
 
 function savePlan(){
+  const _devRaw = document.getElementById('plan-cardio-devices');
+  if(_devRaw){
+    const list = _devRaw.value.split('\n').map(x=>x.trim()).filter(x=>x.length>0);
+    if(list.length) state.cardioDevices = [...new Set(list)];
+  }
   Object.keys(state.plan).forEach(key=>{
+    state.plan[key].cardio = {
+      device: document.getElementById(`cardiodev-${key}`).value,
+      minutes: parseInt(document.getElementById(`cardiomin-${key}`).value)||5
+    };
     const lv=document.getElementById(`label-${key}`).value.trim();
     if(lv) state.plan[key].label=lv;
     const fv=document.getElementById(`focus-${key}`).value.trim();
@@ -1074,6 +1118,7 @@ function savePlan(){
   renderSessionSelector();
   renderWeekPlan();
   renderTodayPreview();
+  renderCardio();
   closeModal('modal-plan');
 }
 
@@ -1109,11 +1154,7 @@ function openEditPhase(key){
       <input type="text" id="ep-wdh" value="${ph.wdh}" placeholder="z.B. 8–12">
     </div>
     <div class="form-group">
-      <label>Sätze pro Übung</label>
-      <input type="text" id="ep-saetze" value="${ph.saetze}" placeholder="z.B. 3–4">
-    </div>
-    <div class="form-group">
-      <label>Aufwärmsätze</label>
+      <label>Aufwärmsätze je Körperregion</label>
       <input type="text" id="ep-warmup" value="${ph.warmup||'1'}" placeholder="z.B. 1">
     </div>
     ${!isDeload?`<div class="form-group">
@@ -1136,7 +1177,6 @@ function savePhaseEdit(){
   if(!editingPhaseKey) return;
   if(!state.phaseParams[editingPhaseKey]) state.phaseParams[editingPhaseKey]={};
   state.phaseParams[editingPhaseKey].wdh = document.getElementById('ep-wdh').value.trim();
-  state.phaseParams[editingPhaseKey].saetze  = document.getElementById('ep-saetze').value.trim();
   state.phaseParams[editingPhaseKey].warmup  = document.getElementById('ep-warmup').value.trim();
   state.phaseParams[editingPhaseKey].intensity = document.getElementById('ep-intensity').value.trim();
   state.phaseParams[editingPhaseKey].pause = document.getElementById('ep-pause').value.trim();
@@ -1167,8 +1207,6 @@ function setPhase(val){
   renderWeekPlan();
   renderTodayPreview();
   document.getElementById('phase-select').value=val;
-  // Reset to Satz 1 on phase change
-  document.getElementById('sets').value = 1;
 }
 
 function renderPhaseTab(){
@@ -1187,14 +1225,14 @@ function renderPhaseTab(){
       <p>${ph.ziel}</p>
       <div class="specs">
         <div class="spec"><strong>${ph.wdh}</strong>Wiederholungen</div>
-        <div class="spec"><strong>${ph.saetze}</strong>Sätze</div>
-        <div class="spec"><strong>${ph.warmup||'1'}</strong>Aufwärmsatz</div>
+        <div class="spec"><strong>1</strong>Arbeitssatz</div>
+        <div class="spec"><strong>${ph.warmup||'1–2'}</strong>Aufwärmsätze / Region</div>
         <div class="spec"><strong>${ph.pause}</strong>Pause</div>
         <div class="spec"><strong>${ph.tempo}</strong>Tempo</div>
       </div>
       ${isDeload?`<div style="margin-top:8px;background:rgba(255,255,255,0.6);border-radius:6px;padding:8px;font-size:12px;color:#4a148c;">
         <strong>Deload-Regeln:</strong><br>
-        • 2 Sätze pro Übung<br>
+        • 1 Arbeitssatz pro Übung<br>
         • Gewicht = 50% des letzten Gewichts<br>
         • 10 Wiederholungen pro Satz
       </div>`:''}
@@ -1238,7 +1276,7 @@ function renderPhaseTab(){
       </div>
       <div class="specs">
         <div class="spec"><strong>${eff.wdh}</strong>Wdh.</div>
-        <div class="spec"><strong>${eff.saetze}</strong>Sätze</div>
+        <div class="spec"><strong>1</strong>Arbeitssatz</div>
         <div class="spec"><strong>${eff.pause}</strong>Pause</div>
         <div class="spec"><strong>${eff.tempo}</strong>Tempo</div>
       </div>
@@ -1253,27 +1291,22 @@ function addEntry(e){
   e.preventDefault();
   const exercise = document.getElementById('exercise').value;
   if(!exercise){alert('Bitte erst eine Übung antippen!');return;}
-  // Warmup sets are NOT saved
-  const _wCount = parseInt(getPhase(state.phase).warmup)||1;
-  if(T.warmupDone < _wCount){
-    T.warmupDone++;
-    document.getElementById('reps').value = '';
-    const _done = T.warmupDone >= _wCount;
-    if(_done){ document.getElementById('sets').value = 1; T.setNum = 1; }
-    alert('Aufwärmsatz ' + T.warmupDone + '/' + _wCount + ' abgeschlossen.' +
-      (_done ? '\nArbeitssätze starten!' : ''));
-    return;
-  }
   const weight = parseFloat(document.getElementById('weight').value);
   const reps = parseInt(document.getElementById('reps').value);
-  const sets = parseInt(document.getElementById('sets').value)||1;
-  T.setNum = sets; // keep T.setNum in sync with form field
+  if(isNaN(weight)||!reps){alert('Bitte Gewicht und Wiederholungen eingeben.');return;}
+  commitEntry(exercise, weight, reps);
+}
+
+// Speichert den (einen) Arbeitssatz einer Übung und startet die Pausenstoppuhr
+function commitEntry(exercise, weight, reps){
+  // Falls die Pausenuhr noch läuft (z.B. manueller Eintrag ohne Timer): beenden
+  if(state.pauseRun) stopPauseRun(true);
   const newPR = isNewPR(exercise, weight);
-  const entry={
+  const entry = {
     id:Date.now(),
     date:document.getElementById('date').value,
-    exercise,weight,reps,sets,
-    setNum: T.setNum || 1,
+    exercise, weight, reps,
+    sets:1, setNum:1,
     phase:state.phase,
     session:state.activeSession,
     isPR:newPR
@@ -1282,23 +1315,25 @@ function addEntry(e){
   state.entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
   saveData();
   if(newPR) showPRToast();
+  // Formular zurücksetzen – Übung ist erledigt
+  document.getElementById('weight').value='';
+  document.getElementById('reps').value='';
+  document.getElementById('exercise').value='';
+  document.getElementById('device-note-display').innerHTML='';
   renderHistory();
   renderChart();
   updateStats();
   renderExerciseLibrary();
-  // Reset
-  // Auto-increment set number, keep exercise selected
-  const _curSet = parseInt(document.getElementById('sets').value)||1;
-  // Keep weight (usually same between sets), only clear reps
-  document.getElementById('reps').value='';
-  document.getElementById('sets').value = _curSet + 1;
-  T.setNum = _curSet + 1;
-  document.getElementById('device-note-display').innerHTML='';
   renderTodayPreview();
+  startPauseRun(entry);
+  return entry;
 }
 
 function deleteEntry(id){
   state.entries=state.entries.filter(e=>e.id!==id);
+  state.pauses=state.pauses.filter(p=>p.fromId!==id);
+  if(state.pauseRun && state.pauseRun.fromId===id) state.pauseRun=null;
+  renderPauseBanner(); renderPauseSummary();
   saveData();
   renderHistory();
   updateStats();
@@ -1326,7 +1361,7 @@ function renderHistory(){
       <div class="entry-meta">
         <div class="meta-item"><div class="meta-label">Gewicht</div><div class="meta-value">${e.weight} kg</div></div>
         <div class="meta-item"><div class="meta-label">Wdh.</div><div class="meta-value">${e.reps}</div></div>
-        <div class="meta-item"><div class="meta-label">Satz</div><div class="meta-value">${e.setNum||e.sets||'–'}</div></div>
+        <div class="meta-item"><div class="meta-label">Pause danach</div><div class="meta-value">${pauseAfter(e.id)}</div></div>
       </div>
       <button class="delete-x" onclick="deleteEntry(${e.id})">×</button>
     </div>`;
@@ -1401,6 +1436,13 @@ function importData(event){
       state.phaseStartDate = imported.phaseStartDate||new Date().toISOString().split('T')[0];
       state.activeSession = imported.activeSession||'A';
       state.phaseParams = imported.phaseParams||{};
+      if(imported.timerSettings) state.timerSettings = imported.timerSettings;
+      state.cardioDevices = (imported.cardioDevices&&imported.cardioDevices.length)?imported.cardioDevices:[...DEFAULT_CARDIO_DEVICES];
+      state.cardioLog = imported.cardioLog||[];
+      state.pauses = imported.pauses||[];
+      state.pauseRun = null;
+      state.cardioRun = null;
+      ensurePlanCardio();
       saveData();
       init();
       alert(`✅ Import erfolgreich!\n${state.entries.length} Einträge geladen.`);
@@ -1419,6 +1461,220 @@ function importData(event){
     if(e.target===this) closeModal(id);
   });
 });
+
+// ===================== HELFER =====================
+function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtSec(sec){ sec=Math.max(0,Math.round(sec)); return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'); }
+function fmtDate(d){ return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'}); }
+
+// ===================== PAUSENUHR (Zeit zwischen zwei Übungen) =====================
+// Startet automatisch nach dem Speichern einer Übung und stoppt, sobald der
+// Satz-Timer der nächsten Übung gestartet wird (oder per Button).
+function startPauseRun(entry){
+  state.pauseRun = {start:Date.now(), fromId:entry.id, fromExercise:entry.exercise, date:entry.date, session:entry.session};
+  saveData();
+  renderPauseBanner();
+}
+
+function stopPauseRun(save){
+  const r = state.pauseRun;
+  if(!r) return;
+  const sec = Math.round((Date.now()-r.start)/1000);
+  state.pauseRun = null;
+  if(save && sec>=5 && sec<=30*60){
+    state.pauses.push({
+      id:Date.now(), date:r.date, fromId:r.fromId, fromExercise:r.fromExercise,
+      toExercise:document.getElementById('exercise')?.value||'', seconds:sec, session:r.session
+    });
+  }
+  saveData();
+  renderPauseBanner();
+  renderHistory();
+  renderPauseSummary();
+  if(chartMode==='pause') renderChart();
+}
+
+function discardPauseRun(){
+  state.pauseRun = null;
+  saveData();
+  renderPauseBanner();
+}
+
+function pauseStatsByDate(){
+  const m = {};
+  state.pauses.forEach(p=>{ (m[p.date]=m[p.date]||[]).push(p.seconds); });
+  return Object.entries(m).map(([date,a])=>({
+    date, count:a.length, avg:a.reduce((x,y)=>x+y,0)/a.length, min:Math.min(...a), max:Math.max(...a)
+  })).sort((a,b)=>a.date<b.date?-1:1);
+}
+
+function pauseAfter(entryId){
+  const p = state.pauses.find(x=>x.fromId===entryId);
+  return p ? fmtSec(p.seconds) : '–';
+}
+
+function renderPauseBanner(){
+  const el = document.getElementById('pause-banner');
+  if(!el) return;
+  const r = state.pauseRun;
+  if(!r){ el.innerHTML=''; return; }
+  const prevDays = pauseStatsByDate().filter(d=>d.date<r.date);
+  const prev = prevDays.length ? prevDays[prevDays.length-1] : null;
+  el.innerHTML = `<div class="pause-banner">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <div>
+        <div class="pb-label">⏸ Pause nach ${esc(r.fromExercise)}</div>
+        <div class="pb-time" id="pause-time">${fmtSec((Date.now()-r.start)/1000)}</div>
+        ${prev?`<div class="pb-hint">Ø letztes Training: ${fmtSec(prev.avg)}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button type="button" class="pb-btn" onclick="stopPauseRun(true)">Pause beenden</button>
+        <button type="button" class="pb-btn ghost" onclick="discardPauseRun()">Verwerfen</button>
+      </div>
+    </div>
+    <div class="pb-hint" style="margin-top:6px;">Stoppt automatisch, wenn du den Satz-Timer der nächsten Übung startest.</div>
+  </div>`;
+}
+
+function renderPauseSummary(){
+  const el = document.getElementById('pause-summary');
+  if(!el) return;
+  const days = pauseStatsByDate();
+  if(!days.length){
+    el.innerHTML = `<div class="card"><div class="card-title">⏱ Pausenzeiten zwischen Übungen</div>
+      <p style="font-size:13px;color:#888;line-height:1.5;">Noch keine Pausen gemessen. Nach jedem gespeicherten Arbeitssatz startet automatisch die Pausenuhr.</p></div>`;
+    return;
+  }
+  const rev = days.slice().reverse();
+  const best = Math.min(...days.map(d=>d.avg));
+  const rows = rev.slice(0,8).map((d,i)=>{
+    const older = rev[i+1];
+    let trend = '';
+    if(older){
+      const diff = Math.round(d.avg-older.avg);
+      trend = diff<0 ? `<span class="sum-good">↓ ${fmtSec(-diff)}</span>` : diff>0 ? `<span class="sum-bad">↑ ${fmtSec(diff)}</span>` : '<span style="color:#999;">±0</span>';
+    }
+    return `<div class="sum-row">
+      <span>${fmtDate(d.date)} <span style="color:#aaa;font-size:11px;">· ${d.count} Pausen</span></span>
+      <span><strong>Ø ${fmtSec(d.avg)}</strong> <span style="color:#aaa;font-size:11px;">(${fmtSec(d.min)}–${fmtSec(d.max)})</span> ${trend}</span>
+    </div>`;
+  }).join('');
+  el.innerHTML = `<div class="card"><div class="card-title">⏱ Pausenzeiten zwischen Übungen</div>
+    <div style="font-size:12px;color:#666;margin-bottom:6px;">Bester Ø bisher: <strong>${fmtSec(best)}</strong> · grün = kürzer als beim Training davor</div>
+    ${rows}</div>`;
+}
+
+// ===================== KARDIO-AUFWÄRMEN =====================
+function getPlanCardio(){
+  const d = state.plan[state.activeSession];
+  return (d && d.cardio) ? d.cardio : {device:'', minutes:5};
+}
+
+function renderCardio(){
+  const el = document.getElementById('cardio-body');
+  if(!el) return;
+  const r = state.cardioRun;
+  if(r){
+    const rem = r.plannedSec - (Date.now()-r.start)/1000;
+    el.innerHTML = `<div style="text-align:center;">
+      <div style="font-size:13px;color:#666;">${esc(r.device)} · ${fmtSec(r.plannedSec)} geplant</div>
+      <div id="cardio-time" style="font-size:54px;font-weight:800;color:#e67e22;line-height:1.15;margin:4px 0 10px;">${fmtSec(Math.ceil(rem))}</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+        <button type="button" class="btn btn-primary" onclick="finishCardio(false)">✓ Fertig</button>
+        <button type="button" class="btn btn-danger" onclick="cancelCardio()">✕ Abbrechen</button>
+      </div></div>`;
+    return;
+  }
+  const pc = getPlanCardio();
+  const sel = pc.device || '';
+  const devs = (sel && !state.cardioDevices.includes(sel)) ? [...state.cardioDevices, sel] : state.cardioDevices;
+  const opts = `<option value="">– Gerät wählen –</option>` +
+    devs.map(d=>`<option value="${esc(d)}" ${d===sel?'selected':''}>${esc(d)}</option>`).join('') +
+    `<option value="__new__">＋ Neues Gerät…</option>`;
+  const today = document.getElementById('date')?.value || todayStr();
+  const todays = state.cardioLog.filter(c=>c.date===today);
+  const last = state.cardioLog.slice().sort((a,b)=>b.id-a.id)[0];
+  el.innerHTML = `
+    <div class="row2">
+      <div class="form-group"><label>Gerät</label><select id="cardio-device" onchange="onCardioDeviceChange(this)">${opts}</select></div>
+      <div class="form-group"><label>Dauer (Min)</label><input type="number" id="cardio-min" min="1" max="60" step="1" value="${pc.minutes||5}"></div>
+    </div>
+    <button type="button" class="btn" style="background:#e67e22;color:#fff;border-color:#e67e22;" onclick="startCardio()">▶ Aufwärm-Timer starten</button>
+    ${todays.length?`<div class="hint" style="color:#27ae60;font-weight:600;margin-top:6px;">✓ Heute: ${todays.map(c=>esc(c.device)+' '+fmtSec(c.actualSec)).join(', ')}</div>`:''}
+    ${last?`<div class="hint">Zuletzt: ${esc(last.device)} · ${fmtSec(last.actualSec)} (${fmtDate(last.date)})</div>`:''}`;
+}
+
+function onCardioDeviceChange(sel){
+  if(sel.value==='__new__'){
+    const name = (prompt('Name des neuen Kardio-Geräts:')||'').trim();
+    if(name && !state.cardioDevices.includes(name)){
+      state.cardioDevices.push(name);
+      saveData();
+    }
+    const pick = name;
+    renderCardio();
+    const s2 = document.getElementById('cardio-device');
+    if(s2 && pick) s2.value = pick;
+  }
+}
+
+function startCardio(){
+  const device = document.getElementById('cardio-device')?.value;
+  if(!device || device==='__new__'){ alert('Bitte erst ein Kardio-Gerät wählen!'); return; }
+  const min = Math.max(1, parseInt(document.getElementById('cardio-min')?.value)||5);
+  state.cardioRun = {start:Date.now(), plannedSec:min*60, device, session:state.activeSession, date:document.getElementById('date').value||todayStr()};
+  saveData();
+  speak('Aufwärmen gestartet');
+  renderCardio();
+}
+
+function finishCardio(auto){
+  const r = state.cardioRun;
+  if(!r) return;
+  const elapsed = Math.round((Date.now()-r.start)/1000);
+  const actual = auto ? r.plannedSec : Math.min(elapsed, 3*r.plannedSec);
+  state.cardioRun = null;
+  if(actual>=10){
+    state.cardioLog.push({id:Date.now(), date:r.date, device:r.device, plannedSec:r.plannedSec, actualSec:actual, session:r.session});
+  }
+  saveData();
+  if(auto){ playBeep(); speak('Aufwärmen beendet. Los geht es mit dem Training!'); }
+  renderCardio();
+  renderCardioSummary();
+}
+
+function cancelCardio(){
+  if(!confirm('Aufwärmen abbrechen (nicht speichern)?')) return;
+  state.cardioRun = null;
+  saveData();
+  renderCardio();
+}
+
+function renderCardioSummary(){
+  const el = document.getElementById('cardio-summary');
+  if(!el) return;
+  if(!state.cardioLog.length){ el.innerHTML=''; return; }
+  const rows = state.cardioLog.slice().sort((a,b)=>b.id-a.id).slice(0,8).map(c=>`
+    <div class="sum-row">
+      <span>${fmtDate(c.date)} <span style="color:#aaa;font-size:11px;">· Einheit ${esc(c.session||'')}</span></span>
+      <span><strong>${esc(c.device)}</strong> · ${fmtSec(c.actualSec)} Min</span>
+    </div>`).join('');
+  el.innerHTML = `<div class="card"><div class="card-title">🔥 Kardio-Aufwärmen</div>${rows}</div>`;
+}
+
+// gemeinsamer Sekundentakt für Pausenuhr und Kardio-Timer
+function tickAll(){
+  if(state.pauseRun){
+    const el = document.getElementById('pause-time');
+    if(el) el.textContent = fmtSec((Date.now()-state.pauseRun.start)/1000);
+  }
+  if(state.cardioRun){
+    const rem = state.cardioRun.plannedSec - (Date.now()-state.cardioRun.start)/1000;
+    if(rem<=0){ finishCardio(true); return; }
+    const el = document.getElementById('cardio-time');
+    if(el) el.textContent = fmtSec(Math.ceil(rem));
+  }
+}
 
 // ===================== TIMER =====================
 const TIMER_PHASES = {
@@ -1464,20 +1720,14 @@ function openTimer(){
   document.getElementById('t-oben').value    = ts.oben    ?? 1;
   document.getElementById('t-negativ').value = ts.negativ ?? 2;
   document.getElementById('t-pause').value   = ts.pause   ?? 1;
-  document.getElementById('t-rest').value    = ts.rest    ?? 90;
   T.order           = ts.order        ? [...ts.order] : ['positiv','oben','negativ','pause'];
   T.voiceEnabled    = ts.voiceEnabled ?? true;
-  T.warmupRestTotal = ts.warmupRest ?? 30;
-  const _warmupEl = document.getElementById('t-warmup-rest');
-  if(_warmupEl) _warmupEl.value = T.warmupRestTotal;
-  // timer-last-info is updated when set starts (startSet/startPrep)
-  document.getElementById('timer-set-num').textContent = T.setNum;
   renderPhaseOrderSelector();
   setVoice(T.voiceEnabled);
   showTimerPanel('settings');
   updateTimerMainBtn('start');
   showBigStop(false);
-  document.getElementById('timer-popup-title').textContent='⏱️ Satz-Timer';
+  document.getElementById('timer-popup-title').textContent='⏱️ '+_ex;
   document.getElementById('timer-overlay').classList.add('open');
 }
 
@@ -1500,6 +1750,8 @@ function closeTimer(){
 function showTimerPanel(name){
   ['timer-settings-panel','timer-prep-display','timer-display','timer-rest-display']
     .forEach(id=>document.getElementById(id).style.display='none');
+  const _ctl = document.getElementById('timer-controls');
+  if(_ctl) _ctl.style.display = (name==='rest') ? 'none' : 'flex';
   const map={settings:'timer-settings-panel',prep:'timer-prep-display',set:'timer-display',rest:'timer-rest-display'};
   document.getElementById(map[name]).style.display='block';
 }
@@ -1534,7 +1786,7 @@ function togglePhaseOrder(p){
 
 // ---- MAIN ACTION BUTTON ----
 function timerMainAction(){
-  if(T.mode==='idle')       startPrep();
+  if(T.mode==='idle'){ stopPauseRun(true); startPrep(); }
   else if(T.mode==='prep'&&T.paused)  resumeTimer('prep');
   else if(T.mode==='prep')            pauseTimer();
   else if(T.mode==='set'&&T.paused)   resumeTimer('set');
@@ -1597,8 +1849,6 @@ function saveTimerSettings(){
     oben:         g('t-oben')    ?? 1,
     negativ:      g('t-negativ') ?? 2,
     pause:        g('t-pause')   ?? 1,
-    rest:         g('t-rest')    ?? 90,
-    warmupRest:   g('t-warmup-rest') ?? 30,
     order:        [...T.order],
     voiceEnabled: T.voiceEnabled
   };
@@ -1611,25 +1861,18 @@ function startSet(){
   clearInterval(T.interval);
   showTimerPanel('set');
   showBigStop(true);
-  if(!T.setNum) T.setNum=1;
-  const _warmupN = parseInt(getPhase(state.phase).warmup)||1;
-  const _isW = T.setNum <= _warmupN;
-  document.getElementById('timer-popup-title').textContent = _isW
-    ? '⏱️ Satz '+T.setNum+' – Aufwärmsatz'
-    : '⏱️ Satz '+T.setNum+' läuft';
+  const _ex = document.getElementById('exercise')?.value || '';
+  document.getElementById('timer-popup-title').textContent = '⏱️ Arbeitssatz läuft';
   updateTimerMainBtn('pause');
   document.getElementById('timer-rep-current').textContent='0';
-  document.getElementById('timer-set-num').textContent = T.setNum;
+  document.getElementById('timer-set-num').textContent = _ex || '–';
   startShakeDetection();
-  // Show last entry info
-  const _ex = document.getElementById('exercise')?.value;
   if(_ex){
     const _last = getLastEntry(_ex);
     document.getElementById('timer-last-weight').textContent = _last ? (_last.weight>0?_last.weight+'kg':'KG') : '–';
     document.getElementById('timer-last-reps').textContent = _last ? _last.reps+' Wdh' : '–';
     const _prevRef = getPrevTrainingEntry(_ex);
-
-    const _prevTxt = _prevRef ? 'Letztes Training Satz 1: '+(_prevRef.weight>0?_prevRef.weight+'kg':'KG')+' × '+_prevRef.reps+' Wdh' : '';
+    const _prevTxt = _prevRef ? 'Letztes Training: '+(_prevRef.weight>0?_prevRef.weight+'kg':'KG')+' × '+_prevRef.reps+' Wdh' : '';
     const _refEl = document.getElementById('timer-prev-ref'); if(_refEl) _refEl.textContent = _prevTxt;
   }
   startSetPhase();
@@ -1704,76 +1947,24 @@ function updateSetDisplay(){
   }
 }
 
-// ---- STOP SET -> REST ----
+// ---- STOP SET -> SPEICHERN ----
 function timerStopSet(){
   clearInterval(T.interval);
   window.speechSynthesis && window.speechSynthesis.cancel();
   stopShakeDetection();
   showBigStop(false);
-  // Manual stop: NEVER count partial rep (phaseIdx>0 = mid-rep = incomplete)
-  // T.repsDone stays as completed full reps only
+  // Unvollständige Wiederholung (mitten in einer Phase) zählt nicht
   T.mode='rest'; T.paused=false;
-  // Warmup sets = first N sets based on phase warmup count
-  const _warmupCount = parseInt(getPhase(state.phase).warmup)||1;
-  const isWarmupSet = (T.setNum <= _warmupCount);
-  const restVal = isWarmupSet
-    ? (parseInt(document.getElementById('t-warmup-rest').value)||30)
-    : (parseInt(document.getElementById('t-rest').value)||90);
-  T.restTotal = restVal;
-  T.restSec = restVal;
   showTimerPanel('rest');
-  showBigStop(false);
-  const _wN2 = parseInt(getPhase(state.phase).warmup)||1;
-  const _isWS = (T.setNum <= _wN2);
-  document.getElementById('timer-popup-title').textContent = _isWS ? '⏱️ Aufwärm-Pause' : '⏱️ Satz-Pause';
-  document.getElementById('rest-set-num') && (document.getElementById('rest-set-num').textContent = T.setNum);
-  const _sEl = document.getElementById('rest-saved-stats'); if(_sEl) _sEl.innerHTML='';
-  // Populate editable inputs with current weight from form and timer rep count
+  document.getElementById('timer-popup-title').textContent = '⏱️ Arbeitssatz beendet';
+  const _sEl = document.getElementById('rest-saved-stats');
+  if(_sEl) _sEl.textContent = 'Gewicht und Wiederholungen prüfen, dann speichern.';
   const _repsInput = document.getElementById('rest-reps-input');
   if(_repsInput) _repsInput.value = T.repsDone;
   const _weightInput = document.getElementById('rest-weight-input');
   if(_weightInput) _weightInput.value = document.getElementById('weight').value || '';
-  // Hide save button during warmup sets
-  const _applyBtn = document.getElementById('apply-rep-btn');
-  if(_applyBtn){
-    const _wc = parseInt(getPhase(state.phase).warmup)||1;
-    _applyBtn.style.display = (T.setNum <= _wc) ? 'none' : 'block';
-  }
-  updateTimerMainBtn('pause');
-  updateRestDisplay();
+  updateTimerMainBtn('start');
   playBeep();
-  startRestInterval();
-}
-
-function startRestInterval(){
-  T.interval=setInterval(()=>{
-    if(T.paused||T.mode!=='rest') return;
-    T.restSec--;
-    updateRestDisplay();
-    if(T.restSec===10){
-      speak('Noch zehn Sekunden. Vorbereiten für den nächsten Satz!');
-    } else if(T.restSec===5){
-      speak('Noch fünf Sekunden. Fertig machen!');
-    } else if(T.restSec===3) speak('Drei');
-    else if(T.restSec===2) speak('Zwei');
-    else if(T.restSec===1) speak('Eins');
-    else if(T.restSec<=0){
-      clearInterval(T.interval);
-      playBeep();
-      // Auto-advance: increment setNum, show ready state
-      T.setNum++;
-      document.getElementById('timer-set-num') && (document.getElementById('timer-set-num').textContent = T.setNum);
-      T.mode='idle';
-      updateTimerMainBtn('start');
-      document.getElementById('timer-popup-title').textContent='⏱️ Satz '+T.setNum+' – Bereit!';
-      document.getElementById('rest-phase-label').textContent='Pause beendet!';
-      document.getElementById('rest-seconds').textContent='';
-    }
-  },1000);
-}
-
-function updateRestDisplay(){
-  document.getElementById('rest-seconds').textContent=T.restSec;
 }
 
 // ---- PAUSE / RESUME ----
@@ -1800,15 +1991,13 @@ function timerReset(){
   stopShakeDetection();
   showBigStop(false);
   T.mode='idle'; T.paused=false; T.phaseIdx=0;
-  T.repsDone=0; T.currentSec=0; T.restSec=0; T.prepSec=0;
-  T.setNum=1; T.warmupDone=0;
+  T.repsDone=0; T.currentSec=0; T.prepSec=0;
   showTimerPanel('settings');
-  showBigStop(false);
-  document.getElementById('timer-popup-title').textContent='⏱️ Satz-Timer';
+  document.getElementById('timer-popup-title').textContent='⏱️ '+(document.getElementById('exercise')?.value||'Satz-Timer');
   updateTimerMainBtn('start');
 }
 
-// ---- APPLY REP COUNT TO FORM ----
+// ---- WERTE ANPASSEN ----
 function adjustReps(delta){
   const input = document.getElementById('rest-reps-input');
   const newVal = Math.max(0, (parseInt(input.value)||0) + delta);
@@ -1822,90 +2011,22 @@ function adjustWeight(delta){
   input.value = newVal;
 }
 
-function skipRest(){
-  clearInterval(T.interval);
-  T.mode = 'idle';
-  T.setNum++;
-  document.getElementById('rest-set-num') && (document.getElementById('rest-set-num').textContent = T.setNum);
-  document.getElementById('timer-set-num') && (document.getElementById('timer-set-num').textContent = T.setNum);
-  updateTimerMainBtn('start');
-  document.getElementById('timer-popup-title').textContent = '⏱️ Satz ' + T.setNum + ' – Bereit!';
-  showTimerPanel('settings');
+function discardTimerSet(){
+  if(!confirm('Diesen Arbeitssatz verwerfen (nicht speichern)?')) return;
+  closeTimer();
 }
 
+// ---- SPEICHERN: ein Arbeitssatz je Übung, danach startet die Pausenuhr ----
 function saveTimerEntry(){
   const exercise = document.getElementById('exercise')?.value;
   if(!exercise){ alert('Keine Übung ausgewählt!'); return; }
-  const repsInput = document.getElementById('rest-reps-input');
-  const weightInput = document.getElementById('rest-weight-input');
-  const reps   = parseInt(repsInput?.value) || T.repsDone;
-  const weight = parseFloat(weightInput?.value) || parseFloat(document.getElementById('weight')?.value) || 0;
+  const reps   = parseInt(document.getElementById('rest-reps-input')?.value) || 0;
+  const weight = parseFloat(document.getElementById('rest-weight-input')?.value);
   if(!reps){ alert('Bitte Wiederholungen eingeben!'); return; }
-
-  // Check warmup
-  const _wCount = parseInt(getPhase(state.phase).warmup)||1;
-  if(T.warmupDone < _wCount){
-    T.warmupDone++;
-    const _done = T.warmupDone >= _wCount;
-    if(_done){ T.setNum = 1; }
-    alert('Aufwärmsatz ' + T.warmupDone + '/' + _wCount + ' abgeschlossen.' + (_done ? '\nArbeitssätze starten!' : ''));
-    // Update form weight for next set
-    if(weight) document.getElementById('weight').value = weight;
-    return;
-  }
-
-  const newPR = isNewPR(exercise, weight);
-  const entry = {
-    id: Date.now(),
-    date: document.getElementById('date').value,
-    exercise, weight, reps,
-    sets: T.setNum,
-    setNum: T.setNum,
-    phase: state.phase,
-    session: state.activeSession,
-    isPR: newPR
-  };
-  state.entries.push(entry);
-  state.entries.sort((a,b) => new Date(b.date) - new Date(a.date));
-  saveData();
-  if(newPR) showPRToast();
-  renderHistory(); renderChart(); updateStats(); renderExerciseLibrary();
-  // Update main form weight field for next set
-  document.getElementById('weight').value = weight;
-  document.getElementById('reps').value = '';
-  document.getElementById('sets').value = T.setNum + 1;
-
-  const btn = document.getElementById('apply-rep-btn');
-  if(btn){ btn.textContent = '✓ Gespeichert!'; btn.style.background = '#1a5c2a';
-    setTimeout(()=>{ btn.textContent='💾 Speichern'; btn.style.background='#27ae60'; }, 1800); }
-
-  // Show saved stats as motivation
-  const _statsEl = document.getElementById('rest-saved-stats');
-  if(_statsEl) _statsEl.innerHTML =
-    `<span style="color:#27ae60;font-weight:700;">💪 ${weight}kg × ${reps} Wdh. gespeichert</span>`;
-
-  renderTodayPreview();
-
-  // Check if all work sets completed -> auto-close timer
-  const _ph = getPhase(state.phase);
-  const _totalWorkSets = parseInt((_ph.saetze||'3').toString().split('–')[1] || (_ph.saetze||'3').toString().split('-')[1] || _ph.saetze) || 3;
-  const _wDone = parseInt(getPhase(state.phase).warmup)||1;
-  const _workSetsDone = T.setNum - _wDone; // sets saved so far excluding warmup
-  // Count actual work entries saved today for this exercise
-  const _todayWorkEntries = state.entries.filter(e =>
-    e.exercise === exercise && e.date === document.getElementById('date').value && e.setNum >= 1
-  ).length;
-  if(_todayWorkEntries >= _totalWorkSets){
-    setTimeout(()=>{
-      if(confirm('✅ Alle ' + _totalWorkSets + ' Arbeitssätze abgeschlossen!\nTraining für diese Übung beendet.')){
-        closeTimer();
-      }
-    }, 500);
-  }
+  if(isNaN(weight)){ alert('Bitte Gewicht eingeben!'); return; }
+  closeTimer();
+  commitEntry(exercise, weight, reps);
 }
-
-// Legacy - keep for compatibility
-function applyRepCount(){ saveTimerEntry(); }
 
 
 // ---- HELPERS ----
@@ -1965,22 +2086,10 @@ function checkUnsavedBeforeSwitch(newExercise){
   const weight = document.getElementById('weight').value;
   const reps   = document.getElementById('reps').value;
   const curEx  = document.getElementById('exercise').value;
-  const _wCnt = parseInt(getPhase(state.phase).warmup)||1;
-  if(curEx && weight && reps && newExercise !== curEx && T.setNum > _wCnt){
-    if(confirm('Gewicht/Wiederholungen noch nicht gespeichert. Jetzt speichern?')){
-      const w=parseFloat(weight), r=parseInt(reps), s=parseInt(document.getElementById('sets').value)||3;
-      if(w && r){
-        const np=isNewPR(curEx,w);
-        state.entries.push({id:Date.now(),date:document.getElementById('date').value,
-          exercise:curEx,weight:w,reps:r,sets:s,setNum:T.setNum||1,
-          phase:state.phase,session:state.activeSession,isPR:np});
-        state.entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
-        saveData(); if(np) showPRToast();
-        renderHistory(); renderChart(); updateStats(); renderExerciseLibrary();
-        document.getElementById('weight').value='';
-        document.getElementById('reps').value='';
-        renderTodayPreview();
-      }
+  if(curEx && weight && reps && newExercise !== curEx){
+    if(confirm('Gewicht/Wiederholungen für „'+curEx+'" noch nicht gespeichert. Jetzt speichern?')){
+      const w=parseFloat(weight), r=parseInt(reps);
+      if(!isNaN(w) && r) commitEntry(curEx, w, r);
     }
   }
 }
@@ -2057,6 +2166,8 @@ function setChartMode(mode){
   chartMode = mode;
   document.getElementById('chart-tab-weight').className = mode==='weight'?'btn btn-sm btn-primary':'btn btn-sm';
   document.getElementById('chart-tab-volume').className = mode==='volume'?'btn btn-sm btn-primary':'btn btn-sm';
+  document.getElementById('chart-tab-pause').className = mode==='pause'?'btn btn-sm btn-primary':'btn btn-sm';
+  const w = document.getElementById('chart-ex-wrap'); if(w) w.style.display = mode==='pause'?'none':'block';
   renderChart();
 }
 
@@ -2078,7 +2189,7 @@ function renderChart(){
   const legendEl = document.getElementById('chart-legend');
   const val = e => chartMode==='weight' ? e.weight : e.weight*e.reps*e.sets;
 
-  if(!entries.length){
+  if(chartMode!=='pause' && !entries.length){
     if(emptyEl){ emptyEl.style.display='block'; canvas.style.display='none'; }
     return;
   }
@@ -2088,7 +2199,12 @@ function renderChart(){
   // Build series
   let series = [];
   const COLORS = ['#2e85d4','#e74c3c','#27ae60','#f39c12','#9b59b6','#1abc9c','#e67e22','#3498db','#c0392b','#16a085'];
-  if(selectedEx){
+  if(chartMode==='pause'){
+    const pd = pauseStatsByDate();
+    series = pd.length ? [{name:'Ø Pause je Training (Sek)', color:'#e67e22', points:pd.map(d=>({
+      x:new Date(d.date+'T00:00:00').getTime(), y:Math.round(d.avg), phase:'', date:d.date
+    }))}] : [];
+  } else if(selectedEx){
     const pts = entries.filter(e=>e.exercise===selectedEx).map(e=>({
       x:new Date(e.date+'T00:00:00').getTime(), y:val(e),
       phase:e.phase||'', date:e.date, isPR:e.isPR
@@ -2127,7 +2243,7 @@ function renderChart(){
     ctx.strokeStyle='#e8edf3'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(PL,cy); ctx.lineTo(PL+cW,cy); ctx.stroke();
     ctx.fillStyle='#999'; ctx.font=`${10*dpr/dpr}px Arial`; ctx.textAlign='right';
-    ctx.fillText(Math.round(yv)+(chartMode==='weight'?'kg':''), PL-5, cy+3);
+    ctx.fillText(Math.round(yv)+(chartMode==='weight'?'kg':(chartMode==='pause'?'s':'')), PL-5, cy+3);
   }
 
   // X labels
@@ -2192,6 +2308,7 @@ function renderChart(){
 }
 
 loadData();
+setInterval(tickAll,500);
 function playBeep(){
   try {
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
