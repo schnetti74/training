@@ -8,7 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Trainings-Tracker">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="data:application/manifest+json,{&quot;name&quot;:&quot;Trainings-Tracker&quot;,&quot;short_name&quot;:&quot;Training&quot;,&quot;start_url&quot;:&quot;https://schnetti74.github.io/training/&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%23f0f4f8&quot;,&quot;theme_color&quot;:&quot;%23185FA5&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23185FA5' width='192' height='192' rx='24'/%3E%3Ctext x='96' y='130' font-size='120' text-anchor='middle' fill='white'%3E%F0%9F%92%AA%3C/text%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Trainings-Tracker</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -75,6 +77,14 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 .qs-btn{padding:7px 13px;border:1.5px solid #b3d0ea;background:#eaf4fb;border-radius:20px;font-size:13px;font-weight:500;color:#1a5080;cursor:pointer;transition:all 0.15s;white-space:nowrap;text-align:left;}
 .qs-btn:active{transform:scale(0.95);}
 .qs-btn.selected{background:#185FA5;color:#fff;border-color:#185FA5;}
+.qs-btn.done{background:#eaf6ee;border-color:#a8d9b8;color:#2f6b45;}
+.qs-btn.done.selected{background:#185FA5;color:#fff;border-color:#185FA5;}
+.qs-btn.done .qs-btn-last{opacity:0.9;}
+.qs-warm{display:inline-block;font-size:10px;font-weight:700;color:#b9600a;background:#fdf0e1;border-radius:8px;padding:0 5px;margin-left:5px;vertical-align:1px;}
+.qs-btn.selected .qs-warm{background:rgba(255,255,255,0.22);color:#fff;}
+.profile-toggle{display:flex;gap:8px;margin-bottom:0.9rem;}
+.profile-btn{flex:1;padding:9px 6px;border-radius:10px;border:2px solid #2a3a5a;background:#1a2540;color:#7eb8e8;font-size:13px;font-weight:700;cursor:pointer;}
+.profile-btn.on{background:#185FA5;border-color:#3b8fd9;color:#fff;}
 .qs-btn-inner{display:flex;flex-direction:column;}
 .qs-btn-name{font-size:13px;font-weight:600;}
 .qs-btn-last{font-size:10px;opacity:0.75;margin-top:1px;}
@@ -202,7 +212,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 <div class="container">
 
   <div id="ff-hint" style="display:none;background:#f0f7ff;border:1.5px solid #b3d0ea;border-radius:10px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:13px;color:#185FA5;">
-    📱 <strong>Tipp:</strong> Menü (☰) → „Zum Startbildschirm hinzufügen" für schnellen Zugriff
+    📱 <strong>Als App installieren:</strong> Browser-Menü (⋮ / ☰) → <strong>„Installieren“</strong> bzw. „Zum Startbildschirm hinzufügen“.
     <button onclick="document.getElementById('ff-hint').style.display='none';localStorage.setItem('ff-hint-dismissed','1')" style="float:right;background:none;border:none;color:#185FA5;font-size:16px;cursor:pointer;line-height:1;">✕</button>
   </div>
   <h1>💪 Trainings-Tracker</h1>
@@ -279,6 +289,24 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
         <textarea id="new-ex-note" placeholder="z.B. Sitz auf 4, Rückenlehne auf 2, Fußplatte Mitte, Griffweite eng"></textarea>
         <p class="hint">Freitext – alles was Sie sich merken möchten</p>
       </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>🔥 Aufwärmsätze vorher</label>
+          <select id="new-ex-warmup">
+            <option value="0">keine</option>
+            <option value="1">1 Aufwärmsatz</option>
+            <option value="2">2 Aufwärmsätze</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>⏱ Satz-Timer</label>
+          <select id="new-ex-profile">
+            <option value="lang">lang (Standard)</option>
+            <option value="kurz">kurz</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint" style="margin-top:-6px;margin-bottom:0.8rem;">Hinweis „Aufwärmen vorher“ erscheint beim Antippen der Übung; Timer-Frequenz ist die Voreinstellung für diese Übung.</p>
       <button class="btn btn-primary" onclick="addExercise()">+ Übung hinzufügen</button>
     </div>
     <div class="section-label">Alle Übungen</div>
@@ -391,6 +419,24 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <textarea id="edit-ex-note" rows="4"></textarea>
       <p class="hint">Sitzposition, Rückenlehne, Griffweite, Gewichtspin etc.</p>
     </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>🔥 Aufwärmsätze vorher</label>
+          <select id="edit-ex-warmup">
+            <option value="0">keine</option>
+            <option value="1">1 Aufwärmsatz</option>
+            <option value="2">2 Aufwärmsätze</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>⏱ Satz-Timer</label>
+          <select id="edit-ex-profile">
+            <option value="lang">lang (Standard)</option>
+            <option value="kurz">kurz</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint" style="margin-top:-6px;margin-bottom:0.8rem;">Hinweis „Aufwärmen vorher“ erscheint beim Antippen der Übung; Timer-Frequenz ist die Voreinstellung für diese Übung.</p>
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="saveExerciseEdit()">Speichern</button>
       <button class="btn" onclick="closeModal('modal-ex')">Abbrechen</button>
@@ -421,7 +467,14 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 
     <!-- ===== SETTINGS PANEL ===== -->
     <div class="timer-settings" id="timer-settings-panel">
-      <h3>Frequenz-Einstellungen</h3>
+      <h3>Frequenz</h3>
+      <div class="profile-toggle">
+        <button type="button" class="profile-btn" id="profile-btn-lang" onclick="setTimerProfile('lang')">🐢 Lang</button>
+        <button type="button" class="profile-btn" id="profile-btn-kurz" onclick="setTimerProfile('kurz')">⚡ Kurz</button>
+      </div>
+      <div id="profile-default-row" style="display:none;margin:-0.4rem 0 0.8rem;text-align:center;">
+        <button type="button" class="pb-btn" style="background:#2a3a5a;color:#7eb8e8;" onclick="saveProfileAsDefault()">★ Als Standard für diese Übung merken</button>
+      </div>
       <div class="timer-phase-rows">
         <div class="timer-phase-row">
           <div class="timer-phase-color" style="background:#9b59b6;"></div>
@@ -560,9 +613,10 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
         </button>
         <button id="skip-rest-btn" type="button" onclick="discardTimerSet()"
           style="background:#2a3a5a;color:#7eb8e8;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;">
-          ✕ Verwerfen
+          ✕ Nicht speichern
         </button>
       </div>
+      <div style="text-align:center;font-size:11px;color:#556;margin-top:8px;">z. B. bei Aufwärmsätzen</div>
     </div>
 
     <!-- ===== CONTROLS ===== -->
@@ -626,7 +680,8 @@ let state = {
   activeSession:"A",
   phaseParams:{},
   timerSettings:{
-    prep:5, positiv:2, oben:1, negativ:2, pause:1,
+    lang:{prep:5, positiv:2, oben:1, negativ:2, pause:1},
+    kurz:{prep:5, positiv:1, oben:0, negativ:1, pause:0},
     order:['positiv','oben','negativ','pause'],
     voiceEnabled:true
   },
@@ -661,10 +716,22 @@ function loadData(){
     }
   }catch(e){}
   ensurePlanCardio();
+  migrateTimerSettings();
   // veraltete laufende Uhren verwerfen (App war lange zu)
   if(state.pauseRun && Date.now()-state.pauseRun.start > 30*60*1000) state.pauseRun = null;
   if(state.cardioRun && Date.now()-state.cardioRun.start > (state.cardioRun.plannedSec+600)*1000) state.cardioRun = null;
   init();
+}
+
+// ältere Speicherstände hatten nur ein Profil (flach) -> wird zu „lang“
+function migrateTimerSettings(){
+  const ts = state.timerSettings;
+  if(!ts.lang){
+    ts.lang = {prep:ts.prep??5, positiv:ts.positiv??2, oben:ts.oben??1, negativ:ts.negativ??2, pause:ts.pause??1};
+  }
+  if(!ts.kurz) ts.kurz = {prep:5, positiv:1, oben:0, negativ:1, pause:0};
+  ['prep','positiv','oben','negativ','pause','rest','warmupRest'].forEach(k=>{ delete ts[k]; });
+  if(!ts.order) ts.order = ['positiv','oben','negativ','pause'];
 }
 
 function ensurePlanCardio(){
@@ -717,6 +784,11 @@ function getPhase(key){
   return {...base, ...overrides};
 }
 
+function warmupCount(name){
+  const ex = getExerciseByName(name);
+  return ex && ex.warmup ? ex.warmup : 0;
+}
+
 function getExerciseByName(name){
   return state.exerciseLibrary.find(e=>e.name===name);
 }
@@ -750,8 +822,14 @@ function addExercise(){
     alert('Diese Übung existiert bereits.');
     return;
   }
-  state.exerciseLibrary.push({name, note:noteEl.value.trim()});
+  state.exerciseLibrary.push({
+    name, note:noteEl.value.trim(),
+    warmup:parseInt(document.getElementById('new-ex-warmup').value)||0,
+    timerProfile:document.getElementById('new-ex-profile').value
+  });
   nameEl.value=''; noteEl.value='';
+  document.getElementById('new-ex-warmup').value='0';
+  document.getElementById('new-ex-profile').value='lang';
   saveData();
   populateExerciseDropdowns();
   renderExerciseLibrary();
@@ -762,6 +840,8 @@ function openEditExercise(idx){
   const ex = state.exerciseLibrary[idx];
   document.getElementById('edit-ex-name').value = ex.name;
   document.getElementById('edit-ex-note').value = ex.note||'';
+  document.getElementById('edit-ex-warmup').value = String(ex.warmup||0);
+  document.getElementById('edit-ex-profile').value = ex.timerProfile||'lang';
   document.getElementById('modal-ex').classList.add('open');
 }
 
@@ -779,12 +859,17 @@ function saveExerciseEdit(){
       day.exercises = day.exercises.map(e=>e===oldName?newName:e);
     });
   }
-  state.exerciseLibrary[editingExIndex] = {name:newName, note:newNote};
+  state.exerciseLibrary[editingExIndex] = {
+    name:newName, note:newNote,
+    warmup:parseInt(document.getElementById('edit-ex-warmup').value)||0,
+    timerProfile:document.getElementById('edit-ex-profile').value
+  };
   saveData();
   populateExerciseDropdowns();
   renderExerciseLibrary();
   renderTodayPreview();
   renderWeekPlan();
+  const _cur=document.getElementById('exercise').value; if(_cur) showDeviceNote(_cur===oldName?newName:_cur);
   closeModal('modal-ex');
   editingExIndex=null;
 }
@@ -809,7 +894,7 @@ function renderExerciseLibrary(){
     return `
     <div class="ex-lib-item">
       <div class="ex-lib-info">
-        <div class="ex-lib-name">${ex.name}</div>
+        <div class="ex-lib-name">${esc(ex.name)}${ex.warmup?`<span class="qs-warm">🔥${ex.warmup} Aufwärmen</span>`:''}${ex.timerProfile==='kurz'?`<span class="qs-warm" style="background:#e7f0fb;color:#185FA5;">⏱ kurz</span>`:''}</div>
         ${pr ? `<div class="ex-lib-pr">🏆 Bestleistung: ${pr.weight} kg × ${pr.reps} Wdh.</div>` : ''}
         ${ex.note ? `<div class="ex-lib-note">📋 ${ex.note}</div>` : '<div class="ex-lib-note" style="color:#ccc;font-size:11px;">Keine Gerätenotiz</div>'}
       </div>
@@ -902,6 +987,7 @@ function renderTodayPreview(){
           return `<li>
             <span class="ex-name">
               ${e}
+              ${warmupCount(e)?`<span class="qs-warm">🔥${warmupCount(e)} Aufwärmen</span>`:''}
               ${pr?`<span class="pr-badge">PR: ${pr.weight}kg</span>`:''}
               ${ex&&ex.note?`<span class="ex-sub">📋 ${ex.note}</span>`:''}
             </span>
@@ -963,10 +1049,12 @@ function renderQuickSelect(exercises){
           } else {
             subText=last?`Zuletzt: ${last.weight>0?last.weight+'kg':'KG'} × ${last.reps}`:'Neu';
           }
-          if(state.entries.some(en=>en.exercise===e && en.date===document.getElementById('date').value)) subText='✓ heute erledigt';
-          return `<button type="button" class="qs-btn ${currentVal===e?'selected':''}" onclick="quickSelectExercise('${e.replace(/'/g,"\\'")}')">
+          const doneToday = state.entries.some(en=>en.exercise===e && en.date===document.getElementById('date').value);
+          if(doneToday) subText='✓ erledigt · '+(last?(last.weight>0?last.weight+'kg':'KG')+' × '+last.reps:'');
+          const wu = warmupCount(e);
+          return `<button type="button" class="qs-btn ${doneToday?'done':''} ${currentVal===e?'selected':''}" data-ex="${esc(e)}" onclick="quickSelectExercise('${e.replace(/'/g,"\\'")}')">
             <div class="qs-btn-inner">
-              <span class="qs-btn-name">${isPRlast&&!isDeload?'🏆 ':''}${e}</span>
+              <span class="qs-btn-name">${isPRlast&&!isDeload?'🏆 ':''}${e}${wu?`<span class="qs-warm" title="${wu} Aufwärmsatz vorher">🔥${wu}</span>`:''}</span>
               <span class="qs-btn-last">${subText}</span>
             </div>
           </button>`;
@@ -979,7 +1067,7 @@ function quickSelectExercise(name){
   checkUnsavedBeforeSwitch(name);
   document.getElementById('exercise').value=name;
   document.querySelectorAll('.qs-btn').forEach(b=>{
-    b.classList.toggle('selected', b.querySelector('.qs-btn-name').textContent.replace('🏆 ','').trim()===name);
+    b.classList.toggle('selected', b.getAttribute('data-ex')===name);
   });
   showDeviceNote(name);
   // Only prefill weight/reps if fields are currently empty
@@ -1005,13 +1093,19 @@ function onExerciseSelectChange(){ /* no-op: dropdown removed */ }
 function showDeviceNote(name){
   const ex = getExerciseByName(name);
   const div = document.getElementById('device-note-display');
-  if(ex&&ex.note){
-    div.innerHTML=`<div style="background:#fffbea;border:1.5px solid #f0d070;border-radius:8px;padding:9px 12px;margin-bottom:0.9rem;font-size:13px;color:#7a6000;line-height:1.5;">
-      📋 <strong>Geräteeinstellung:</strong><br>${ex.note}
+  const wu = warmupCount(name);
+  let html = '';
+  if(wu){
+    html += `<div style="background:#fdf0e1;border:1.5px solid #f0c48a;border-radius:8px;padding:9px 12px;margin-bottom:0.6rem;font-size:13px;color:#8a4a08;line-height:1.5;">
+      🔥 <strong>Vorher ${wu} ${wu>1?'Aufwärmsätze':'Aufwärmsatz'}</strong> (leichtes Gewicht, nicht speichern)
     </div>`;
-  } else {
-    div.innerHTML='';
   }
+  if(ex&&ex.note){
+    html += `<div style="background:#fffbea;border:1.5px solid #f0d070;border-radius:8px;padding:9px 12px;margin-bottom:0.9rem;font-size:13px;color:#7a6000;line-height:1.5;">
+      📋 <strong>Geräteeinstellung:</strong><br>${esc(ex.note)}
+    </div>`;
+  }
+  div.innerHTML = html;
 }
 
 // ===================== WEEK PLAN =====================
@@ -1437,6 +1531,7 @@ function importData(event){
       state.activeSession = imported.activeSession||'A';
       state.phaseParams = imported.phaseParams||{};
       if(imported.timerSettings) state.timerSettings = imported.timerSettings;
+      migrateTimerSettings();
       state.cardioDevices = (imported.cardioDevices&&imported.cardioDevices.length)?imported.cardioDevices:[...DEFAULT_CARDIO_DEVICES];
       state.cardioLog = imported.cardioLog||[];
       state.pauses = imported.pauses||[];
@@ -1686,6 +1781,8 @@ const TIMER_PHASES = {
 
 // MODE: 'idle' | 'prep' | 'set' | 'rest'
 let T = {
+  profile:'lang',
+  profileDefault:'lang',
   mode: 'idle',
   order: ['positiv','oben','negativ','pause'],
   phaseIdx: 0,
@@ -1713,15 +1810,15 @@ function openTimer(){
     alert('Bitte erst eine Übung antippen!');
     return;
   }
-  // Restore saved timer settings
+  // Voreinstellung der Übung (Standard: lang)
   const ts = state.timerSettings;
-  document.getElementById('t-prep').value    = ts.prep    ?? 5;
-  document.getElementById('t-positiv').value = ts.positiv ?? 2;
-  document.getElementById('t-oben').value    = ts.oben    ?? 1;
-  document.getElementById('t-negativ').value = ts.negativ ?? 2;
-  document.getElementById('t-pause').value   = ts.pause   ?? 1;
+  const _exObj = getExerciseByName(_ex);
+  T.profileDefault = (_exObj && _exObj.timerProfile==='kurz') ? 'kurz' : 'lang';
+  T.profile = T.profileDefault;
+  loadProfileIntoInputs();
   T.order           = ts.order        ? [...ts.order] : ['positiv','oben','negativ','pause'];
   T.voiceEnabled    = ts.voiceEnabled ?? true;
+  updateProfileUI();
   renderPhaseOrderSelector();
   setVoice(T.voiceEnabled);
   showTimerPanel('settings');
@@ -1841,17 +1938,55 @@ function updatePrepDisplay(){
 }
 
 // ---- SET TIMER ----
+function loadProfileIntoInputs(){
+  const pr = state.timerSettings[T.profile] || state.timerSettings.lang;
+  document.getElementById('t-prep').value    = pr.prep    ?? 5;
+  document.getElementById('t-positiv').value = pr.positiv ?? 2;
+  document.getElementById('t-oben').value    = pr.oben    ?? 1;
+  document.getElementById('t-negativ').value = pr.negativ ?? 2;
+  document.getElementById('t-pause').value   = pr.pause   ?? 1;
+}
+
+function updateProfileUI(){
+  document.getElementById('profile-btn-lang').classList.toggle('on', T.profile==='lang');
+  document.getElementById('profile-btn-kurz').classList.toggle('on', T.profile==='kurz');
+  document.getElementById('profile-default-row').style.display = (T.profile!==T.profileDefault) ? 'block' : 'none';
+}
+
+// Wechsel gilt zunächst nur für diesen Satz; als Standard speichern per Button
+function setTimerProfile(p){
+  if(T.mode!=='idle') return;
+  T.profile = p;
+  loadProfileIntoInputs();
+  updateProfileUI();
+}
+
+function saveProfileAsDefault(){
+  const name = document.getElementById('exercise').value;
+  const ex = getExerciseByName(name);
+  if(!ex) return;
+  ex.timerProfile = T.profile;
+  T.profileDefault = T.profile;
+  saveData();
+  updateProfileUI();
+  renderExerciseLibrary();
+  const row = document.getElementById('profile-default-row');
+  row.style.display='block';
+  row.innerHTML = '<span style="font-size:12px;color:#27ae60;font-weight:700;">✓ Standard für „'+esc(name)+'“: '+(T.profile==='kurz'?'kurz':'lang')+'</span>';
+  setTimeout(()=>{ row.innerHTML='<button type="button" class="pb-btn" style="background:#2a3a5a;color:#7eb8e8;" onclick="saveProfileAsDefault()">★ Als Standard für diese Übung merken</button>'; updateProfileUI(); }, 1800);
+}
+
 function saveTimerSettings(){
   const g = id => { const el=document.getElementById(id); return el&&el.value!==''?parseInt(el.value):null; };
-  state.timerSettings = {
+  state.timerSettings[T.profile] = {
     prep:         g('t-prep')    ?? 5,
     positiv:      g('t-positiv') ?? 2,
     oben:         g('t-oben')    ?? 1,
     negativ:      g('t-negativ') ?? 2,
-    pause:        g('t-pause')   ?? 1,
-    order:        [...T.order],
-    voiceEnabled: T.voiceEnabled
+    pause:        g('t-pause')   ?? 1
   };
+  state.timerSettings.order = [...T.order];
+  state.timerSettings.voiceEnabled = T.voiceEnabled;
   saveData();
 }
 
@@ -1862,7 +1997,7 @@ function startSet(){
   showTimerPanel('set');
   showBigStop(true);
   const _ex = document.getElementById('exercise')?.value || '';
-  document.getElementById('timer-popup-title').textContent = '⏱️ Arbeitssatz läuft';
+  document.getElementById('timer-popup-title').textContent = '⏱️ Satz läuft · '+(T.profile==='kurz'?'kurz':'lang');
   updateTimerMainBtn('pause');
   document.getElementById('timer-rep-current').textContent='0';
   document.getElementById('timer-set-num').textContent = _ex || '–';
@@ -2012,7 +2147,7 @@ function adjustWeight(delta){
 }
 
 function discardTimerSet(){
-  if(!confirm('Diesen Arbeitssatz verwerfen (nicht speichern)?')) return;
+  if(!confirm('Diesen Satz nicht speichern (z. B. Aufwärmsatz)?')) return;
   closeTimer();
 }
 
@@ -2309,6 +2444,9 @@ function renderChart(){
 
 loadData();
 setInterval(tickAll,500);
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>{ try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){} });
+}
 function playBeep(){
   try {
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
