@@ -85,6 +85,11 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 .profile-toggle{display:flex;gap:8px;margin-bottom:0.9rem;}
 .profile-btn{flex:1;padding:9px 6px;border-radius:10px;border:2px solid #2a3a5a;background:#1a2540;color:#7eb8e8;font-size:13px;font-weight:700;cursor:pointer;}
 .profile-btn.on{background:#185FA5;border-color:#3b8fd9;color:#fff;}
+.list-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;background:#f3f7fb;border:1px solid #dbe6f1;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px;font-weight:600;color:#185FA5;cursor:pointer;}
+.list-toggle .chev{display:inline-block;transition:transform 0.2s;font-size:12px;}
+.list-toggle.collapsed .chev{transform:rotate(-90deg);}
+.session-last{position:relative;}
+.session-last-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;border-radius:6px;padding:1px 6px;margin-top:4px;}
 .qs-btn-inner{display:flex;flex-direction:column;}
 .qs-btn-name{font-size:13px;font-weight:600;}
 .qs-btn-last{font-size:10px;opacity:0.75;margin-top:1px;}
@@ -685,6 +690,7 @@ let state = {
     order:['positiv','oben','negativ','pause'],
     voiceEnabled:true
   },
+  todayListCollapsed:false,
   cardioDevices:[...DEFAULT_CARDIO_DEVICES],
   cardioLog:[],      // {id,date,device,plannedSec,actualSec,session}
   cardioRun:null,    // laufendes Kardio-Aufwärmen
@@ -709,6 +715,7 @@ function loadData(){
       state.phaseParams = d.phaseParams||{};
       if(d.timerSettings) state.timerSettings = d.timerSettings;
       state.cardioDevices = (d.cardioDevices&&d.cardioDevices.length)?d.cardioDevices:[...DEFAULT_CARDIO_DEVICES];
+      state.todayListCollapsed = !!d.todayListCollapsed;
       state.cardioLog = d.cardioLog||[];
       state.pauses = d.pauses||[];
       state.pauseRun = d.pauseRun||null;
@@ -925,18 +932,35 @@ function showPRToast(){
 }
 
 // ===================== SESSION SELECTOR =====================
+// Einheit mit dem zuletzt gespeicherten Eintrag (Datum, dann Zeitstempel)
+function getLastTrainedSession(){
+  let best = null;
+  state.entries.forEach(e=>{
+    if(!e.session || !state.plan[e.session]) return;
+    if(!best || e.date>best.date || (e.date===best.date && e.id>best.id)) best = e;
+  });
+  return best ? {key:best.session, date:best.date} : null;
+}
+
 function renderSessionSelector(){
+  const last = getLastTrainedSession();
   const icons = {A:'🦵',B:'💪',C:'🏋️'};
   const html = `<div style="display:flex;gap:8px;flex-wrap:wrap;">
     ${Object.entries(state.plan).map(([key,s])=>{
       const active = key===state.activeSession;
+      const isLast = !!last && last.key===key;
+      const bg = active ? '#185FA5' : (isLast ? '#fff4e0' : '#f7fafd');
+      const bd = active ? '#185FA5' : (isLast ? '#f0a43a' : '#d0dce8');
+      const col = active ? '#fff' : (isLast ? '#8a4a08' : '#444');
+      const tag = isLast ? `<div><span class="session-last-tag" style="background:${active?'rgba(255,255,255,0.22)':'#f6c77c'};color:${active?'#fff':'#6b3a05'};">zuletzt · ${new Date(last.date+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}</span></div>` : '';
       return `<button type="button" onclick="setActiveSession('${key}')"
-        style="flex:1;min-width:80px;padding:10px 6px;border-radius:10px;border:2px solid ${active?'#185FA5':'#d0dce8'};
-               background:${active?'#185FA5':'#f7fafd'};color:${active?'#fff':'#444'};
+        style="flex:1;min-width:80px;padding:10px 6px;border-radius:10px;border:2px solid ${bd};
+               background:${bg};color:${col};
                font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;">
         <div style="font-size:18px;margin-bottom:2px;">${icons[key]||'🏋️'}</div>
         <div>${s.label}</div>
         <div style="font-size:10px;font-weight:400;opacity:0.85;margin-top:1px;">${s.focus}</div>
+        ${tag}
       </button>`;
     }).join('')}
   </div>`;
@@ -970,7 +994,10 @@ function renderTodayPreview(){
         <strong>${ph.wdh} Wdh</strong> · <strong>1 Arbeitssatz</strong> + <strong>${ph.warmup||'1–2'} Aufwärmsätze je Körperregion</strong> · Pause ${ph.pause} · Tempo ${ph.tempo}
         ${isDeload?'<br><span style="color:#7b1fa2;font-weight:600;">⚡ Gewicht halbieren gegenüber letzter Kraftausdauer-Phase</span>':''}
       </div>
-      <ul class="ex-list">
+      <button type="button" class="list-toggle ${state.todayListCollapsed?'collapsed':''}" onclick="toggleTodayList()" aria-expanded="${!state.todayListCollapsed}">
+        <span>Übungen der Einheit (${dayData.exercises.length})</span><span class="chev">▼</span>
+      </button>
+      <ul class="ex-list" style="${state.todayListCollapsed?'display:none;':''}">
         ${dayData.exercises.map(e=>{
           const last = getLastEntry(e);
           const ex = getExerciseByName(e);
@@ -997,6 +1024,12 @@ function renderTodayPreview(){
       </ul>
     </div>`;
   renderQuickSelect(dayData.exercises);
+}
+
+function toggleTodayList(){
+  state.todayListCollapsed = !state.todayListCollapsed;
+  saveData();
+  renderTodayPreview();
 }
 
 function getLastEntry(exerciseName){
@@ -1419,6 +1452,7 @@ function commitEntry(exercise, weight, reps){
   updateStats();
   renderExerciseLibrary();
   renderTodayPreview();
+  renderSessionSelector();
   startPauseRun(entry);
   return entry;
 }
@@ -1427,7 +1461,7 @@ function deleteEntry(id){
   state.entries=state.entries.filter(e=>e.id!==id);
   state.pauses=state.pauses.filter(p=>p.fromId!==id);
   if(state.pauseRun && state.pauseRun.fromId===id) state.pauseRun=null;
-  renderPauseBanner(); renderPauseSummary();
+  renderPauseBanner(); renderPauseSummary(); renderSessionSelector();
   saveData();
   renderHistory();
   updateStats();
