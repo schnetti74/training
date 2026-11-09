@@ -165,7 +165,8 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 /* TIMER POPUP */
 .timer-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,0.92);z-index:300;justify-content:center;align-items:center;}
 .timer-overlay.open{display:flex;}
-.timer-popup{background:#1a2540;border-radius:20px;padding:1.5rem;width:calc(100% - 2rem);max-width:400px;color:#fff;position:relative;}
+.timer-popup{background:#1a2540;border-radius:20px;padding:1.5rem 1.5rem 0;width:calc(100% - 2rem);max-width:400px;color:#fff;position:relative;max-height:calc(100vh - 1.5rem);max-height:calc(100dvh - 1.5rem);overflow-y:auto;overscroll-behavior:contain;}
+.timer-footer{position:sticky;bottom:0;background:#1a2540;padding:0.7rem 0 1rem;margin-top:0.3rem;z-index:5;box-shadow:0 -10px 12px -6px #1a2540;}
 .timer-popup h2{font-size:16px;font-weight:700;color:#7eb8e8;margin-bottom:1.2rem;text-align:center;}
 .timer-phase-label{text-align:center;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;height:20px;transition:color 0.3s;}
 .timer-circle-wrap{display:flex;justify-content:center;margin-bottom:1rem;}
@@ -179,7 +180,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 .timer-rep-count{text-align:center;margin-bottom:1rem;}
 .timer-rep-num{font-size:32px;font-weight:700;color:#fff;}
 .timer-rep-lbl{font-size:12px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.5px;}
-.timer-controls{display:flex;gap:10px;margin-bottom:1rem;}
+.timer-controls{display:flex;gap:10px;margin-bottom:0;}
 .timer-btn{flex:1;padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;}
 .timer-btn:active{transform:scale(0.96);}
 .timer-btn-start{background:#27ae60;color:#fff;}
@@ -673,6 +674,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 
     <!-- ===== CONTROLS ===== -->
     <!-- Big stop button – shown during set -->
+    <div class="timer-footer">
     <div id="big-stop-wrap" style="display:none;margin-bottom:0.8rem;">
       <button onclick="timerStopSet()"
         style="width:100%;padding:20px;background:#e74c3c;color:#fff;border:none;border-radius:16px;
@@ -686,6 +688,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <button class="timer-btn timer-btn-start" id="timer-btn-main" onclick="timerMainAction()">▶ Starten</button>
 
       <button class="timer-btn timer-btn-reset" onclick="timerReset()">↺ Reset</button>
+    </div>
     </div>
   </div>
 </div>
@@ -2092,6 +2095,7 @@ function showTimerPanel(name){
     .forEach(id=>document.getElementById(id).style.display='none');
   const _ctl = document.getElementById('timer-controls');
   if(_ctl) _ctl.style.display = (name==='rest') ? 'none' : 'flex';
+  const _ft = document.querySelector('.timer-footer'); if(_ft) _ft.style.display = (name==='rest') ? 'none' : 'block';
   const map={settings:'timer-settings-panel',prep:'timer-prep-display',set:'timer-display',rest:'timer-rest-display',wrest:'timer-wrest-display'};
   document.getElementById(map[name]).style.display='block';
 }
