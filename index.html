@@ -90,6 +90,21 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
 .list-toggle.collapsed .chev{transform:rotate(-90deg);}
 .session-last{position:relative;}
 .session-last-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;border-radius:6px;padding:1px 6px;margin-top:4px;}
+.tech-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.tech-chip{border:1.5px solid #d0dce8;background:#f7fafd;color:#445;border-radius:16px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.2;}
+.tech-chip.cfg{border-color:#c9b6ec;}
+.tech-chip.on{background:#7b3fc4;border-color:#7b3fc4;color:#fff;}
+.tech-info{font-size:12px;line-height:1.55;color:#555;background:#f6f1fc;border-radius:8px;padding:8px 10px;}
+.tech-info b{color:#5b2d99;}
+.tech-box.dark .tech-chip{background:#1a2540;border-color:#2a3a5a;color:#7eb8e8;}
+.tech-box.dark .tech-chip.cfg{border-color:#6b4ba3;}
+.tech-box.dark .tech-chip.on{background:#7b3fc4;border-color:#a97be0;color:#fff;}
+.tech-box.dark .tech-info{background:#0f1929;color:#aac;}
+.tech-box.dark .tech-info b{color:#d3b8ff;}
+.tech-badge{display:inline-block;font-size:10px;font-weight:700;background:#efe5fb;color:#5b2d99;border-radius:8px;padding:1px 7px;margin-left:6px;vertical-align:1px;}
+.tech-cb{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;}
+.tech-cb input{width:18px;height:18px;margin:0;}
+.entry-tech-sel{font-size:11px;border:1px solid #d9d0ea;background:#faf7fe;color:#5b2d99;border-radius:8px;padding:3px 6px;max-width:100%;}
 .qs-btn-inner{display:flex;flex-direction:column;}
 .qs-btn-name{font-size:13px;font-weight:600;}
 .qs-btn-last{font-size:10px;opacity:0.75;margin-top:1px;}
@@ -270,6 +285,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
             <input type="number" id="reps" placeholder="z.B. 10" required>
           </div>
         </div>
+        <div class="form-group tech-box" id="tech-box"></div>
         <button type="submit" class="btn btn-primary">✓ Speichern</button>
       </form>
     </div>
@@ -313,6 +329,10 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
         </div>
       </div>
       <p class="hint" style="margin-top:-6px;margin-bottom:0.8rem;">Hinweis „Aufwärmen vorher“ erscheint beim Antippen der Übung; Timer-Frequenz ist die Voreinstellung für diese Übung.</p>
+      <div class="form-group">
+        <label>⚡ Intensitätstechniken (möglich bei dieser Übung)</label>
+        <div id="new-ex-tech-box"></div>
+      </div>
       <button class="btn btn-primary" onclick="addExercise()">+ Übung hinzufügen</button>
     </div>
     <div class="section-label">Alle Übungen</div>
@@ -358,6 +378,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
       <div id="chart-legend" style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:6px;"></div>
       <div id="chart-empty" style="display:none;text-align:center;padding:2rem;color:#aaa;font-size:13px;">Noch keine Daten für diese Ansicht</div>
     </div>
+    <div id="tech-summary"></div>
     <div id="pause-summary"></div>
     <div id="cardio-summary"></div>
     <!-- Phase legend -->
@@ -443,6 +464,10 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
         </div>
       </div>
       <p class="hint" style="margin-top:-6px;margin-bottom:0.8rem;">Hinweis „Aufwärmen vorher“ erscheint beim Antippen der Übung; Timer-Frequenz ist die Voreinstellung für diese Übung.</p>
+    <div class="form-group">
+      <label>⚡ Intensitätstechniken (möglich bei dieser Übung)</label>
+      <div id="edit-ex-tech-box"></div>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="saveExerciseEdit()">Speichern</button>
       <button class="btn" onclick="closeModal('modal-ex')">Abbrechen</button>
@@ -645,7 +670,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
             <div style="font-size:10px;color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;text-align:center;margin-bottom:5px;">Gewicht (kg)</div>
             <div style="display:flex;align-items:center;justify-content:center;gap:5px;">
               <button type="button" onclick="adjustWeight(-2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:38px;height:38px;font-size:18px;cursor:pointer;font-weight:700;">−</button>
-              <input type="number" id="rest-weight-input" step="0.5" style="width:62px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
+              <input type="number" id="rest-weight-input" step="0.5" style="width:80px;text-align:center;font-size:20px;font-weight:800;color:#fff;background:#1a2540;border:2px solid #2a3a5a;border-radius:8px;padding:4px;-moz-appearance:textfield;">
               <button type="button" onclick="adjustWeight(2.5)" style="background:#2a3a5a;color:#fff;border:none;border-radius:6px;width:38px;height:38px;font-size:18px;cursor:pointer;font-weight:700;">+</button>
             </div>
           </div>
@@ -659,6 +684,7 @@ textarea{resize:vertical;min-height:65px;font-size:14px;}
           </div>
         </div>
       </div>
+      <div class="tech-box dark" id="timer-tech-box" style="margin-bottom:0.8rem;"></div>
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
         <button id="apply-rep-btn" type="button" onclick="saveTimerEntry()"
           style="background:#27ae60;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">
@@ -828,6 +854,10 @@ function init(){
   renderCardio();
   renderPauseSummary();
   renderCardioSummary();
+  techCheckboxes('new-ex', []);
+  renderTechSummary();
+  renderTechBox();
+  document.getElementById('date').addEventListener('change', ()=>{ renderTechBox(); renderTechSummary(); });
 }
 
 // ===================== TAB SWITCH =====================
@@ -888,8 +918,10 @@ function addExercise(){
   state.exerciseLibrary.push({
     name, note:noteEl.value.trim(),
     warmup:parseInt(document.getElementById('new-ex-warmup').value)||0,
-    timerProfile:document.getElementById('new-ex-profile').value
+    timerProfile:document.getElementById('new-ex-profile').value,
+    techniques:readTechCheckboxes('new-ex')
   });
+  techCheckboxes('new-ex', []);
   nameEl.value=''; noteEl.value='';
   document.getElementById('new-ex-warmup').value='0';
   document.getElementById('new-ex-profile').value='lang';
@@ -905,6 +937,7 @@ function openEditExercise(idx){
   document.getElementById('edit-ex-note').value = ex.note||'';
   document.getElementById('edit-ex-warmup').value = String(ex.warmup||0);
   document.getElementById('edit-ex-profile').value = ex.timerProfile||'lang';
+  techCheckboxes('edit-ex', ex.techniques||[]);
   document.getElementById('modal-ex').classList.add('open');
 }
 
@@ -925,7 +958,8 @@ function saveExerciseEdit(){
   state.exerciseLibrary[editingExIndex] = {
     name:newName, note:newNote,
     warmup:parseInt(document.getElementById('edit-ex-warmup').value)||0,
-    timerProfile:document.getElementById('edit-ex-profile').value
+    timerProfile:document.getElementById('edit-ex-profile').value,
+    techniques:readTechCheckboxes('edit-ex')
   };
   saveData();
   populateExerciseDropdowns();
@@ -957,7 +991,7 @@ function renderExerciseLibrary(){
     return `
     <div class="ex-lib-item">
       <div class="ex-lib-info">
-        <div class="ex-lib-name">${esc(ex.name)}${ex.warmup?`<span class="qs-warm">🔥${ex.warmup} Aufwärmen</span>`:''}${ex.timerProfile==='kurz'?`<span class="qs-warm" style="background:#e7f0fb;color:#185FA5;">⏱ kurz</span>`:''}</div>
+        <div class="ex-lib-name">${esc(ex.name)}${ex.warmup?`<span class="qs-warm">🔥${ex.warmup} Aufwärmen</span>`:''}${ex.timerProfile==='kurz'?`<span class="qs-warm" style="background:#e7f0fb;color:#185FA5;">⏱ kurz</span>`:''}${(ex.techniques||[]).map(id=>`<span class="tech-badge">⚡ ${techById(id)?techById(id).short:id}</span>`).join('')}</div>
         ${pr ? `<div class="ex-lib-pr">🏆 Bestleistung: ${pr.weight} kg × ${pr.reps} Wdh.</div>` : ''}
         ${ex.note ? `<div class="ex-lib-note">📋 ${ex.note}</div>` : '<div class="ex-lib-note" style="color:#ccc;font-size:11px;">Keine Gerätenotiz</div>'}
       </div>
@@ -1143,7 +1177,7 @@ function renderQuickSelect(exercises){
           const wu = warmupCount(e);
           return `<button type="button" class="qs-btn ${doneToday?'done':''} ${currentVal===e?'selected':''}" data-ex="${esc(e)}" onclick="quickSelectExercise('${e.replace(/'/g,"\\'")}')">
             <div class="qs-btn-inner">
-              <span class="qs-btn-name">${isPRlast&&!isDeload?'🏆 ':''}${e}${wu?`<span class="qs-warm" title="${wu} Aufwärmsatz vorher">🔥${wu}</span>`:''}</span>
+              <span class="qs-btn-name">${isPRlast&&!isDeload?'🏆 ':''}${e}${wu?`<span class="qs-warm" title="${wu} Aufwärmsatz vorher">🔥${wu}</span>`:''}${exTechniques(e).length?`<span class="tech-badge" title="Intensitätstechnik möglich">⚡</span>`:''}</span>
               <span class="qs-btn-last">${subText}</span>
             </div>
           </button>`;
@@ -1158,7 +1192,9 @@ function quickSelectExercise(name){
   document.querySelectorAll('.qs-btn').forEach(b=>{
     b.classList.toggle('selected', b.getAttribute('data-ex')===name);
   });
+  selTech = null;
   showDeviceNote(name);
+  renderTechBox();
   // Only prefill weight/reps if fields are currently empty
   const weightEl = document.getElementById('weight');
   const repsEl   = document.getElementById('reps');
@@ -1477,11 +1513,11 @@ function addEntry(e){
   const weight = parseFloat(document.getElementById('weight').value);
   const reps = parseInt(document.getElementById('reps').value);
   if(isNaN(weight)||!reps){alert('Bitte Gewicht und Wiederholungen eingeben.');return;}
-  commitEntry(exercise, weight, reps);
+  commitEntry(exercise, weight, reps, selTech);
 }
 
 // Speichert den (einen) Arbeitssatz einer Übung und startet die Pausenstoppuhr
-function commitEntry(exercise, weight, reps){
+function commitEntry(exercise, weight, reps, technique){
   // Falls die Pausenuhr noch läuft (z.B. manueller Eintrag ohne Timer): beenden
   if(state.pauseRun) stopPauseRun(true);
   const newPR = isNewPR(exercise, weight);
@@ -1494,6 +1530,7 @@ function commitEntry(exercise, weight, reps){
     session:state.activeSession,
     isPR:newPR
   };
+  if(technique) entry.technique = technique;
   state.entries.push(entry);
   state.entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
   saveData();
@@ -1503,6 +1540,9 @@ function commitEntry(exercise, weight, reps){
   document.getElementById('reps').value='';
   document.getElementById('exercise').value='';
   document.getElementById('device-note-display').innerHTML='';
+  selTech = null;
+  renderTechBox();
+  renderTechSummary();
   renderHistory();
   renderChart();
   updateStats();
@@ -1517,7 +1557,7 @@ function deleteEntry(id){
   state.entries=state.entries.filter(e=>e.id!==id);
   state.pauses=state.pauses.filter(p=>p.fromId!==id);
   if(state.pauseRun && state.pauseRun.fromId===id) state.pauseRun=null;
-  renderPauseBanner(); renderPauseSummary(); renderSessionSelector();
+  renderPauseBanner(); renderPauseSummary(); renderSessionSelector(); renderTechSummary(); renderTechBox();
   saveData();
   renderHistory();
   updateStats();
@@ -1538,7 +1578,7 @@ function renderHistory(){
     return `<div class="entry-item ${e.isPR?'is-pr':''}">
       <div class="entry-head">
         <div>
-          <div class="entry-title">${e.exercise}${e.isPR?'<span class="pr-badge">🏆 PR</span>':''}</div>
+          <div class="entry-title">${e.exercise}${e.isPR?'<span class="pr-badge">🏆 PR</span>':''}${e.technique?`<span class="tech-badge">⚡ ${esc(techName(e.technique))}</span>`:''}</div>
           <div class="entry-date">${ds}${phaseName?` · ${phaseName}`:''}</div>
         </div>
       </div>
@@ -1547,6 +1587,10 @@ function renderHistory(){
         <div class="meta-item"><div class="meta-label">Wdh.</div><div class="meta-value">${e.reps}</div></div>
         <div class="meta-item"><div class="meta-label">Pause danach</div><div class="meta-value">${pauseAfter(e.id)}</div></div>
       </div>
+      <div style="margin-top:8px;"><select class="entry-tech-sel" onchange="setEntryTechnique(${e.id}, this.value)" aria-label="Intensitätstechnik">
+        <option value="">⚡ keine Technik</option>
+        ${TECHNIQUES.map(t=>`<option value="${t.id}" ${e.technique===t.id?'selected':''}>⚡ ${t.name}</option>`).join('')}
+      </select></div>
       <button class="delete-x" onclick="deleteEntry(${e.id})">×</button>
     </div>`;
   }).join('');
@@ -1651,6 +1695,118 @@ function importData(event){
 function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtSec(sec){ sec=Math.max(0,Math.round(sec)); return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'); }
 function fmtDate(d){ return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'}); }
+
+// ===================== INTENSITÄTSTECHNIKEN =====================
+const TECHNIQUES = [
+  {id:'rp', name:'Rest-Pause',          short:'RP', desc:'Satz bis zum Muskelversagen, kurze Pause, weiterer Mini-Satz'},
+  {id:'sh', name:'Static Hold',         short:'SH', desc:'Am Ende des Satzes die Position isometrisch halten'},
+  {id:'fn', name:'Erzwungene Negative', short:'EN', desc:'Partner hilft beim Anheben, du senkst langsam ab'},
+  {id:'rs', name:'Reduktionssatz',      short:'RS', desc:'Nach Versagen Gewicht reduzieren und weitermachen'}
+];
+let selTech = null;   // für den aktuellen Satz gewählte Technik (id oder null)
+
+function techById(id){ return TECHNIQUES.find(t=>t.id===id) || null; }
+function techName(id){ const t=techById(id); return t?t.name:''; }
+function exTechniques(name){ const ex=getExerciseByName(name); return (ex&&ex.techniques)||[]; }
+
+function refDateStr(){ return document.getElementById('date')?.value || todayStr(); }
+function daysBetween(fromStr, toStr){
+  return Math.round((new Date(toStr+'T00:00:00') - new Date(fromStr+'T00:00:00'))/86400000);
+}
+function agoText(dateStr){
+  const n = daysBetween(dateStr, refDateStr());
+  const d = new Date(dateStr+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+  if(n<=0) return d+' (heute)';
+  if(n===1) return d+' (gestern)';
+  return d+' (vor '+n+' Tagen)';
+}
+
+// alle Sätze mit Technik, neueste zuerst
+function techEntries(){
+  return state.entries.filter(e=>e.technique)
+    .sort((a,b)=> a.date===b.date ? b.id-a.id : (a.date<b.date?1:-1));
+}
+function lastTechUse(techId, exercise){
+  return techEntries().find(e=>(!techId||e.technique===techId) && (!exercise||e.exercise===exercise)) || null;
+}
+
+function selectTech(id){
+  selTech = (selTech===id) ? null : id;
+  renderTechBox();
+}
+
+function techChipsHTML(ex){
+  const cfg = exTechniques(ex);
+  // konfigurierte Techniken zuerst
+  const list = [...TECHNIQUES].sort((a,b)=>(cfg.includes(b.id)?1:0)-(cfg.includes(a.id)?1:0));
+  return `<div class="tech-chips">`+list.map(t=>
+    `<button type="button" class="tech-chip ${cfg.includes(t.id)?'cfg':''} ${selTech===t.id?'on':''}" onclick="selectTech('${t.id}')">${cfg.includes(t.id)?'★ ':''}${t.name}</button>`
+  ).join('')+`</div>`;
+}
+
+function techInfoHTML(ex){
+  const lines = [];
+  if(selTech){
+    const t = techById(selTech);
+    const onEx  = lastTechUse(selTech, ex);
+    const any   = lastTechUse(selTech, null);
+    lines.push(`<b>${t.name}</b> – ${t.desc}.`);
+    lines.push(onEx ? `Zuletzt bei <b>${esc(ex)}</b>: ${agoText(onEx.date)}` : `Bei <b>${esc(ex)}</b> noch nie angewendet.`);
+    if(any && (!onEx || any.id!==onEx.id)) lines.push(`${t.name} insgesamt zuletzt: ${esc(any.exercise)}, ${agoText(any.date)}`);
+  }
+  const lastAny = lastTechUse(null, null);
+  lines.push(lastAny
+    ? `Letzte Intensitätstechnik insgesamt: ${techName(lastAny.technique)} · ${esc(lastAny.exercise)} · ${agoText(lastAny.date)}`
+    : `Noch keine Intensitätstechnik angewendet.`);
+  return `<div class="tech-info">${lines.join('<br>')}</div>`;
+}
+
+function renderTechBox(){
+  const ex = document.getElementById('exercise')?.value;
+  ['tech-box','timer-tech-box'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(!ex){ el.innerHTML=''; return; }
+    el.innerHTML = `<label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;${id==='timer-tech-box'?'color:#7eb8e8;text-transform:uppercase;letter-spacing:0.4px;font-size:11px;':'color:#555;'}">⚡ Intensitätstechnik <span style="font-weight:400;opacity:0.7;">(optional)</span></label>`
+      + techChipsHTML(ex) + techInfoHTML(ex);
+  });
+}
+
+function techCheckboxes(prefix, selected){
+  document.getElementById(prefix+'-tech-box').innerHTML = TECHNIQUES.map(t=>
+    `<label class="tech-cb"><input type="checkbox" value="${t.id}" ${(selected||[]).includes(t.id)?'checked':''}> <span><b>${t.name}</b><br><span style="font-size:11px;color:#888;">${t.desc}</span></span></label>`
+  ).join('');
+}
+function readTechCheckboxes(prefix){
+  return [...document.querySelectorAll('#'+prefix+'-tech-box input:checked')].map(i=>i.value);
+}
+
+function setEntryTechnique(id, val){
+  const e = state.entries.find(x=>x.id===id);
+  if(!e) return;
+  if(val) e.technique = val; else delete e.technique;
+  saveData();
+  renderHistory(); renderTechSummary(); renderTechBox();
+}
+
+function renderTechSummary(){
+  const el = document.getElementById('tech-summary');
+  if(!el) return;
+  const all = techEntries();
+  const today = refDateStr();
+  const rows = TECHNIQUES.map(t=>{
+    const last = all.find(e=>e.technique===t.id);
+    const n30 = all.filter(e=>e.technique===t.id && daysBetween(e.date,today)<=30 && daysBetween(e.date,today)>=0).length;
+    return `<div class="sum-row">
+      <span><strong>${t.name}</strong></span>
+      <span style="text-align:right;">${last ? `${esc(last.exercise)} · ${agoText(last.date)}` : '<span style="color:#aaa;">noch nie</span>'}
+        ${n30?`<span style="color:#aaa;font-size:11px;"> · ${n30}× in 30 Tagen</span>`:''}</span>
+    </div>`;
+  }).join('');
+  const n14 = all.filter(e=>daysBetween(e.date,today)<=14 && daysBetween(e.date,today)>=0).length;
+  el.innerHTML = `<div class="card"><div class="card-title">⚡ Intensitätstechniken</div>
+    <div style="font-size:12px;color:#666;margin-bottom:6px;">Letzte 14 Tage: <strong>${n14}</strong> Sätze mit Technik</div>${rows}</div>`;
+}
 
 // ===================== PAUSENUHR (Zeit zwischen zwei Übungen) =====================
 // Startet automatisch nach dem Speichern einer Übung und stoppt, sobald der
@@ -2358,6 +2514,7 @@ function timerStopSet(){
   document.getElementById('timer-popup-title').textContent = '⏱️ Arbeitssatz beendet';
   const _sEl = document.getElementById('rest-saved-stats');
   if(_sEl) _sEl.textContent = 'Gewicht und Wiederholungen prüfen, dann speichern.';
+  renderTechBox();
   const _repsInput = document.getElementById('rest-reps-input');
   if(_repsInput) _repsInput.value = T.repsDone;
   const _weightInput = document.getElementById('rest-weight-input');
@@ -2424,7 +2581,7 @@ function saveTimerEntry(){
   if(!reps){ alert('Bitte Wiederholungen eingeben!'); return; }
   if(isNaN(weight)){ alert('Bitte Gewicht eingeben!'); return; }
   closeTimer();
-  commitEntry(exercise, weight, reps);
+  commitEntry(exercise, weight, reps, selTech);
 }
 
 
@@ -2488,7 +2645,7 @@ function checkUnsavedBeforeSwitch(newExercise){
   if(curEx && weight && reps && newExercise !== curEx){
     if(confirm('Gewicht/Wiederholungen für „'+curEx+'" noch nicht gespeichert. Jetzt speichern?')){
       const w=parseFloat(weight), r=parseInt(reps);
-      if(!isNaN(w) && r) commitEntry(curEx, w, r);
+      if(!isNaN(w) && r) commitEntry(curEx, w, r, selTech);
     }
   }
 }
